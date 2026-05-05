@@ -1,0 +1,1644 @@
+import React, { useState, useEffect, useRef } from 'react';
+
+// ============================================================================
+// SISTEMA DE ÍCONES (SVG Otimizados para Alta Performance)
+// ============================================================================
+const Icons = {
+  Alert: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>,
+  Clock: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>,
+  Power: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>,
+  Scale: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>,
+  Droplet: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>,
+  Settings: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .11 1.89l1.8 2a4.8 4.8 0 0 1 0 6.53l-1.8 2a1.65 1.65 0 0 0-.11 1.89l1.4 2.6a4.8 4.8 0 0 1-2.9 6.29l-2.77.8a1.65 1.65 0 0 0-1.12 1.5l-.6 2.87a4.8 4.8 0 0 1-5.69 3.65l-2.83-.75a1.65 1.65 0 0 0-1.86.32l-2.15 2a4.8 4.8 0 0 1-6.8 0l-2.15-2a1.65 1.65 0 0 0-1.86-.32l-2.83.75a4.8 4.8 0 0 1-5.69-3.65l-.6-2.87a1.65 1.65 0 0 0-1.12-1.5l-2.77-.8a4.8 4.8 0 0 1-2.9-6.29l1.4-2.6a1.65 1.65 0 0 0 .11-1.89l-1.8-2a4.8 4.8 0 0 1 0-6.53l1.8-2a1.65 1.65 0 0 0 .11-1.89l-1.4-2.6a4.8 4.8 0 0 1 2.9-6.29l2.77-.8a1.65 1.65 0 0 0 1.12-1.5l.6-2.87a4.8 4.8 0 0 1 5.69-3.65l2.83.75a1.65 1.65 0 0 0 1.86-.32l2.15-2a4.8 4.8 0 0 1 6.8 0l2.15 2a1.65 1.65 0 0 0 1.86.32l2.83-.75a4.8 4.8 0 0 1 5.69 3.65l.6 2.87a1.65 1.65 0 0 0 1.12 1.5l2.77.8a4.8 4.8 0 0 1 2.9 6.29l-1.4 2.6z"/></svg>,
+  Search: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+  Target: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+  Wind: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg>,
+  Hexagon: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>,
+  Cube: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>,
+  Shield: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>,
+  Award: () => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-12 h-12"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+};
+
+// ============================================================================
+// UTILITÁRIOS E FUNÇÕES CORE
+// ============================================================================
+// Tolerância matemática para cálculo da Notação Científica (~1.5% erro)
+const checkSciNotation = (mantissa, exponent, targetValue) => {
+  const mVal = parseFloat(mantissa.replace(',', '.'));
+  const eVal = parseInt(exponent);
+  if (isNaN(mVal) || isNaN(eVal)) return false;
+  const userVal = mVal * Math.pow(10, eVal);
+  return Math.abs(userVal - targetValue) / targetValue < 0.015;
+};
+
+// Formatação do Tempo (MM:SS)
+const formatTime = (seconds) => {
+  const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+  const s = (seconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+};
+
+// ============================================================================
+// COMPONENTE PRINCIPAL (CORE APP)
+// ============================================================================
+export default function EscapeRoomApp() {
+  const [gameState, setGameState] = useState('boot'); // boot, intro, playing, victory, gameover
+  const [currentPhase, setCurrentPhase] = useState(1);
+  const [timeLeft, setTimeLeft] = useState(25 * 60); // Aumentado para 25min dado o volume de fases
+  const [penalties, setPenalties] = useState(0);
+
+  // Timer Global
+  useEffect(() => {
+    let interval = null;
+    if (gameState === 'playing' && timeLeft > 0) {
+      interval = setInterval(() => setTimeLeft(t => t - 1), 1000);
+    } else if (timeLeft <= 0 && gameState === 'playing') {
+      setGameState('gameover');
+    }
+    return () => clearInterval(interval);
+  }, [gameState, timeLeft]);
+
+  // Transição de Boot -> Intro
+  useEffect(() => {
+    if (gameState === 'boot') {
+      const timer = setTimeout(() => setGameState('intro'), 4500); // 4.5s de boot cinematográfico
+      return () => clearTimeout(timer);
+    }
+  }, [gameState]);
+
+  const startGame = () => {
+    setGameState('playing');
+    setCurrentPhase(1);
+    setTimeLeft(25 * 60);
+    setPenalties(0);
+  };
+
+  const addPenalty = () => {
+    setPenalties(p => p + 1);
+    setTimeLeft(t => Math.max(0, t - 60)); // -1 Minuto por dica/penalidade
+  };
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0a] text-emerald-500 font-mono flex flex-col items-center selection:bg-emerald-900 selection:text-emerald-100 overflow-x-hidden relative">
+      
+      {/* BACKGROUND CINEMÁTICO (Efeito CRT e Scanlines) */}
+      <div className="fixed inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,rgba(16,185,129,0.05)_0%,rgba(0,0,0,0.8)_100%)] z-0"></div>
+      <div className="fixed inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%] opacity-20 z-50"></div>
+
+      {/* HEADER GLOBAL (Apenas visível se estiver a jogar) */}
+      {gameState === 'playing' && (
+        <header className="w-full bg-black/80 backdrop-blur-md border-b border-emerald-800/50 p-4 shadow-[0_0_20px_rgba(16,185,129,0.15)] z-40 sticky top-0">
+          <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            {/* Logo / Título */}
+            <div className="flex items-center gap-3">
+              <span className="text-red-500 animate-pulse drop-shadow-[0_0_8px_rgba(239,68,68,0.8)]"><Icons.Alert /></span>
+              <h1 className="text-sm md:text-lg font-black tracking-widest uppercase bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-cyan-500">
+                Reator Principal
+              </h1>
+            </div>
+
+            {/* Barra de Progresso Global */}
+            <div className="w-full md:w-1/3 flex flex-col gap-1">
+              <div className="flex justify-between text-[10px] uppercase font-bold text-emerald-600">
+                <span>Estabilização do Núcleo</span>
+                <span>{Math.round((currentPhase / 15) * 100)}%</span>
+              </div>
+              <div className="w-full h-2 bg-neutral-900 rounded-full overflow-hidden border border-neutral-800">
+                <div 
+                  className="h-full bg-gradient-to-r from-emerald-600 to-emerald-400 transition-all duration-500 ease-out relative"
+                  style={{ width: `${(currentPhase / 15) * 100}%` }}
+                >
+                  <div className="absolute inset-0 bg-[linear-gradient(45deg,rgba(255,255,255,0.2)_25%,transparent_25%,transparent_50%,rgba(255,255,255,0.2)_50%,rgba(255,255,255,0.2)_75%,transparent_75%,transparent)] bg-[length:1rem_1rem] animate-[stripes_1s_linear_infinite]"></div>
+                </div>
+              </div>
+            </div>
+
+            {/* Cronómetro e Penalidades */}
+            <div className="flex items-center gap-6">
+              <div className="flex flex-col items-end">
+                <span className="text-[10px] uppercase text-amber-500 font-bold tracking-widest">Penalidades</span>
+                <span className="text-sm font-bold text-amber-400">{penalties}x</span>
+              </div>
+              <div className={`flex items-center gap-2 text-2xl md:text-3xl font-black font-mono px-4 py-1 rounded border ${timeLeft < 300 ? 'text-red-500 border-red-500 bg-red-950/30 animate-pulse' : 'text-emerald-400 border-emerald-900 bg-emerald-950/20'}`}>
+                <Icons.Clock />
+                <span className="tracking-wider">{formatTime(timeLeft)}</span>
+              </div>
+            </div>
+
+          </div>
+        </header>
+      )}
+
+      {/* ÁREA PRINCIPAL DO JOGO */}
+      <main className="flex-1 w-full max-w-6xl p-4 md:p-8 flex flex-col justify-center relative z-10">
+        
+        {/* CONTAINER DE MÓDULO (Glassmorphism + Sombras) */}
+        <div className={`
+          w-full min-h-[600px] flex flex-col justify-center relative overflow-hidden transition-all duration-700
+          ${gameState === 'boot' ? 'bg-transparent' : 'bg-neutral-900/80 backdrop-blur-xl border border-emerald-800/40 rounded-2xl p-6 md:p-10 shadow-[inset_0_0_50px_rgba(0,0,0,0.8),0_10px_30px_rgba(0,0,0,0.5)]'}
+        `}>
+          
+          {gameState === 'boot' && <ScreenBoot />}
+          {gameState === 'intro' && <ScreenIntro onStart={startGame} />}
+          
+          {/* Módulos de Jogo */}
+          {gameState === 'playing' && (
+            <div className="h-full w-full animate-in slide-in-from-right-16 duration-500 fade-in">
+              {currentPhase === 1 && <Module1 onComplete={() => setCurrentPhase(2)} />}
+              {currentPhase === 2 && <Module2 onComplete={() => setCurrentPhase(3)} />}
+              {currentPhase === 3 && <Module3 onComplete={() => setCurrentPhase(4)} />}
+              {currentPhase === 4 && <Module4 onComplete={() => setCurrentPhase(5)} />}
+              {currentPhase === 5 && <Module5 onComplete={() => setCurrentPhase(6)} />}
+              {currentPhase === 6 && <Module6 onComplete={() => setCurrentPhase(7)} />}
+              {currentPhase === 7 && <Module7 onComplete={() => setCurrentPhase(8)} />}
+              {currentPhase === 8 && <Module8 onComplete={() => setCurrentPhase(9)} />}
+              {currentPhase === 9 && <Module9 onComplete={() => setCurrentPhase(10)} />}
+              {currentPhase === 10 && <Module10 onComplete={() => setCurrentPhase(11)} />}
+              {currentPhase === 11 && <Module11 onComplete={() => setCurrentPhase(12)} />}
+              {currentPhase === 12 && <Module12 onComplete={() => setCurrentPhase(13)} />}
+              {currentPhase === 13 && <Module13 onComplete={() => setCurrentPhase(14)} />}
+              {currentPhase === 14 && <Module14 onComplete={() => setCurrentPhase(15)} />}
+              {currentPhase === 15 && <Module15 onComplete={() => setGameState('victory')} />}
+            </div>
+          )}
+          
+          {gameState === 'victory' && <ScreenVictory timeLeft={timeLeft} penalties={penalties} onRestart={() => setGameState('intro')} />}
+          {gameState === 'gameover' && <ScreenGameOver onRestart={() => setGameState('intro')} />}
+
+        </div>
+      </main>
+
+      {/* ESTILOS GLOBAIS E KEYFRAMES (Injetados via CSS) */}
+      <style dangerouslySetInnerHTML={{__html: `
+        @keyframes float { 0% { transform: translateY(0) translateX(0); } 50% { transform: translateY(-15px) translateX(8px); } 100% { transform: translateY(0) translateX(0); } }
+        .particle { animation: float 3s infinite ease-in-out; }
+        
+        @keyframes glitch {
+          0% { transform: translate(0) }
+          20% { transform: translate(-3px, 3px) }
+          40% { transform: translate(-3px, -3px) }
+          60% { transform: translate(3px, 3px) }
+          80% { transform: translate(3px, -3px) }
+          100% { transform: translate(0) }
+        }
+        .glitch-anim { animation: glitch 0.15s infinite; filter: hue-rotate(90deg) contrast(200%); }
+        
+        @keyframes stripes { from { background-position: 0 0; } to { background-position: 1rem 0; } }
+        
+        @keyframes typeWriter {
+          from { width: 0; }
+          to { width: 100%; }
+        }
+        .typing-effect {
+          overflow: hidden;
+          white-space: nowrap;
+          border-right: 2px solid #10b981;
+          animation: typeWriter 2s steps(40, end), blink 0.75s step-end infinite;
+        }
+        @keyframes blink { 50% { border-color: transparent; } }
+
+        /* Estilos base scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #10b981; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #059669; }
+      `}} />
+    </div>
+  );
+}
+
+// ============================================================================
+// TELAS DE ESTADO (Boot, Intro, Vitória, Derrota)
+// ============================================================================
+
+function ScreenBoot() {
+  const [lines, setLines] = useState([]);
+  const bootSequence = [
+    "Iniciando AVOGADRO-OS v9.4.2...",
+    "Carregando módulos estequiométricos [OK]",
+    "Verificando integridade das ligações covalentes [OK]",
+    "ALERTA: Instabilidade detetada no Núcleo de Contenção.",
+    "Aviso Crítico: Falha na refrigeração primária.",
+    "Isolando área do laboratório... Portas trancadas.",
+    "Iniciando protocolo de Recalibração Manual.",
+    "Pressione ENTER para continuar ou aguarde..."
+  ];
+
+  useEffect(() => {
+    let currentLine = 0;
+    const interval = setInterval(() => {
+      if (currentLine < bootSequence.length) {
+        setLines(prev => [...prev, bootSequence[currentLine]]);
+        currentLine++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 500);
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="w-full h-full flex flex-col justify-end text-emerald-500 font-mono text-sm md:text-lg">
+      {lines.map((line, idx) => (
+        <div key={idx} className={idx >= 3 ? "text-red-500 font-bold" : "text-emerald-600"}>
+          {`> ${line}`}
+        </div>
+      ))}
+      <div className="typing-effect mt-4 text-emerald-400 font-bold">_</div>
+    </div>
+  );
+}
+
+function ScreenIntro({ onStart }) {
+  return (
+    <div className="text-center space-y-8 animate-in zoom-in duration-700 h-full flex flex-col justify-center items-center">
+      <div className="relative">
+        <div className="absolute inset-0 bg-red-600 rounded-full blur-[40px] opacity-30 animate-pulse"></div>
+        <div className="relative bg-neutral-900 border-2 border-red-500/50 p-6 rounded-2xl">
+          <Icons.Shield />
+        </div>
+      </div>
+      
+      <h2 className="text-4xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-400 to-red-700 uppercase tracking-widest drop-shadow-sm">
+        Colapso Iminente
+      </h2>
+      
+      <div className="text-neutral-300 text-lg md:text-xl max-w-3xl mx-auto space-y-4 text-left border-l-4 border-red-500 pl-6 bg-red-950/10 p-6 rounded-r-lg shadow-inner">
+        <p>O sistema termodinâmico do <strong className="text-red-400">Reator Principal</strong> falhou devido a um erro de cálculo estequiométrico.</p>
+        <p>Para estabilizar o núcleo, a equipa de contenção precisa recalibrar <strong className="text-emerald-400">15 Módulos Interativos</strong> consecutivamente.</p>
+        <p className="text-amber-500 font-bold bg-amber-950/30 p-2 inline-block rounded">O nível de radiação será letal em exatamente 25 minutos.</p>
+      </div>
+      
+      <button 
+        onClick={onStart} 
+        className="group relative mt-12 overflow-hidden rounded-full bg-red-600 px-12 py-5 font-black uppercase text-white tracking-widest shadow-[0_0_40px_rgba(220,38,38,0.5)] transition-all hover:scale-105 active:scale-95"
+      >
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+        <span className="relative">Iniciar Recalibração do Núcleo</span>
+      </button>
+
+      <style dangerouslySetInnerHTML={{__html: `@keyframes shimmer { 100% { transform: translateX(100%); } }`}} />
+    </div>
+  );
+}
+
+function ScreenVictory({ timeLeft, penalties, onRestart }) {
+  // Cálculo de Score (S, A, B, C)
+  let rank = 'C';
+  let color = 'text-amber-500';
+  let message = "Sobreviveu, mas por pouco.";
+
+  if (timeLeft > 15 * 60 && penalties === 0) { rank = 'S'; color = 'text-fuchsia-500'; message = "Genialidade Estequiométrica Pura!"; }
+  else if (timeLeft > 10 * 60 && penalties <= 1) { rank = 'A'; color = 'text-emerald-400'; message = "Excelente Trabalho de Equipa!"; }
+  else if (timeLeft > 5 * 60 && penalties <= 3) { rank = 'B'; color = 'text-blue-400'; message = "Sólido, mas com alguns percalços."; }
+
+  return (
+    <div className="text-center space-y-8 animate-in slide-in-from-bottom-10 duration-700 h-full flex flex-col justify-center items-center">
+      <div className="relative">
+        <div className="absolute inset-0 bg-emerald-500 rounded-full blur-[50px] opacity-40"></div>
+        <div className="relative bg-black border-4 border-emerald-500 p-8 rounded-full shadow-[0_0_50px_rgba(16,185,129,0.8)] text-emerald-400">
+          <Icons.Award />
+        </div>
+      </div>
+      
+      <h2 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-b from-emerald-300 to-emerald-600 uppercase tracking-widest">
+        Sistema Estabilizado
+      </h2>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mt-8">
+        <div className="bg-neutral-900 border border-neutral-700 p-6 rounded-2xl flex flex-col items-center shadow-lg">
+          <span className="text-neutral-500 uppercase font-bold tracking-widest text-xs mb-2">Tempo Restante</span>
+          <span className="text-4xl font-black text-white font-mono">{formatTime(timeLeft)}</span>
+        </div>
+        <div className="bg-neutral-900 border border-neutral-700 p-6 rounded-2xl flex flex-col items-center shadow-lg relative overflow-hidden">
+          <div className={`absolute inset-0 opacity-20 ${rank==='S'?'bg-fuchsia-500':rank==='A'?'bg-emerald-500':rank==='B'?'bg-blue-500':'bg-amber-500'}`}></div>
+          <span className="text-neutral-500 uppercase font-bold tracking-widest text-xs mb-2 relative z-10">Ranking Final</span>
+          <span className={`text-6xl font-black font-serif relative z-10 ${color} drop-shadow-lg`}>{rank}</span>
+        </div>
+        <div className="bg-neutral-900 border border-neutral-700 p-6 rounded-2xl flex flex-col items-center shadow-lg">
+          <span className="text-neutral-500 uppercase font-bold tracking-widest text-xs mb-2">Dicas Usadas</span>
+          <span className="text-4xl font-black text-amber-400 font-mono">{penalties}</span>
+        </div>
+      </div>
+
+      <p className="text-xl font-bold text-neutral-300 italic">"{message}"</p>
+
+      <button onClick={onRestart} className="mt-8 border-2 border-emerald-600 text-emerald-500 hover:bg-emerald-900/40 hover:text-emerald-300 font-black py-4 px-12 rounded-full uppercase tracking-widest transition-all">
+        Voltar ao Ecrã Principal
+      </button>
+    </div>
+  );
+}
+
+function ScreenGameOver({ onRestart }) {
+  return (
+    <div className="text-center space-y-8 animate-in fade-in duration-1000 h-full flex flex-col justify-center items-center">
+      <div className="bg-red-950 p-8 rounded-full border-4 border-red-600 text-red-500 shadow-[0_0_80px_rgba(220,38,38,0.8)] animate-pulse">
+        <Icons.Alert />
+      </div>
+      <div className="space-y-2">
+        <h2 className="text-6xl md:text-8xl font-black text-red-600 uppercase tracking-widest drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
+          FALHA CRÍTICA
+        </h2>
+        <h3 className="text-2xl text-red-400 font-bold tracking-widest uppercase">
+          Nível de Radiação Letal Atingido.
+        </h3>
+      </div>
+      <p className="text-neutral-500 text-lg max-w-lg">O laboratório foi selado permanentemente. A simulação foi encerrada para proteger os sistemas externos.</p>
+      
+      <button onClick={onRestart} className="mt-12 bg-red-900/50 border border-red-500 hover:bg-red-800 text-red-100 font-black py-4 px-10 rounded-lg uppercase tracking-widest transition-all">
+        Reiniciar Simulação
+      </button>
+    </div>
+  );
+}
+
+// ============================================================================
+// COMPONENTE AUXILIAR (HEADER DO MÓDULO)
+// ============================================================================
+function ModuleHeader({ phase, title, icon, instruction }) {
+  return (
+    <div className="w-full mb-8">
+      <div className="flex justify-between items-end border-b border-emerald-800/60 pb-4">
+        <div className="flex items-center gap-4">
+          <div className="bg-emerald-950/50 border border-emerald-800 p-3 rounded-xl shadow-inner text-emerald-400">
+            {icon}
+          </div>
+          <div>
+            <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest block mb-1">Módulo Operacional {phase}</span>
+            <h3 className="text-2xl md:text-3xl font-black text-white tracking-wide">{title}</h3>
+          </div>
+        </div>
+      </div>
+      {instruction && (
+        <div className="mt-4 bg-neutral-950/50 border-l-4 border-emerald-600 p-4 rounded-r-lg">
+          <p className="text-neutral-300 text-sm md:text-base leading-relaxed">{instruction}</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 1: O Calibrador de Massa (Drag & Drop)
+// ============================================================================
+function Module1({ onComplete }) {
+  const elements = [
+    { symbol: 'Ca', mass: 40, color: 'bg-zinc-200 text-zinc-900 border-zinc-400' },
+    { symbol: 'C', mass: 12, color: 'bg-stone-800 text-stone-100 border-stone-600' },
+    { symbol: 'O', mass: 16, color: 'bg-sky-200 text-sky-900 border-sky-400' },
+    { symbol: 'H', mass: 1, color: 'bg-white text-black border-neutral-300' },
+    { symbol: 'Na', mass: 23, color: 'bg-amber-300 text-amber-900 border-amber-500' }
+  ];
+  
+  const [scaleItems, setScaleItems] = useState([]);
+  const [inputMass, setInputMass] = useState('');
+  
+  const currentMass = scaleItems.reduce((sum, item) => sum + item.mass, 0);
+  const targetMass = 100; // CaCO3
+
+  const handleDragStart = (e, el) => e.dataTransfer.setData('element', JSON.stringify(el));
+  const handleDrop = (e) => { e.preventDefault(); const elData = e.dataTransfer.getData('element'); if(elData) setScaleItems([...scaleItems, JSON.parse(elData)]); };
+  
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={1} title="Calibrador de Massa Analítica" icon={<Icons.Scale />} instruction="O sistema requer exatamente Carbonato de Cálcio (CaCO₃) puro. Arraste os blocos químicos para a bandeja da balança e indique a massa molar resultante para sintetizar o reagente." />
+      
+      <div className="flex-1 grid md:grid-cols-2 gap-8 items-start mt-4">
+        {/* Painel de Elementos */}
+        <div className="bg-black/40 p-6 rounded-2xl border border-neutral-800 shadow-inner">
+          <p className="text-xs text-neutral-500 font-bold uppercase mb-4 tracking-widest">Matéria Prima Disponível</p>
+          <div className="flex flex-wrap gap-4">
+            {elements.map((el) => (
+              <div 
+                key={el.symbol} draggable onDragStart={(e) => handleDragStart(e, el)} onClick={() => setScaleItems([...scaleItems, el])} 
+                className={`w-20 h-24 ${el.color} rounded-xl flex flex-col items-center justify-center cursor-pointer shadow-lg hover:-translate-y-2 active:scale-95 border-b-4 hover:brightness-110 transition-all`}
+              >
+                <span className="font-black text-3xl">{el.symbol}</span>
+                <span className="text-xs font-bold opacity-80 mt-1">{el.mass} u</span>
+              </div>
+            ))}
+          </div>
+          <button onClick={() => {setScaleItems([]); setInputMass('');}} className="mt-8 w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-300 rounded-lg font-bold uppercase text-xs tracking-widest transition-colors">Limpar Bandeja</button>
+        </div>
+
+        {/* Balança Digital */}
+        <div className="flex flex-col items-center justify-center w-full">
+          <div 
+            onDrop={handleDrop} onDragOver={e=>e.preventDefault()} 
+            className={`w-full max-w-sm h-64 border-2 border-dashed rounded-3xl flex flex-col items-center justify-end p-4 transition-colors relative ${currentMass === targetMass ? 'border-emerald-500 bg-emerald-950/20' : 'border-neutral-600 bg-black/40 hover:border-emerald-500/50'}`}
+          >
+            {scaleItems.length === 0 && <span className="absolute inset-0 flex items-center justify-center text-neutral-600 font-bold uppercase tracking-widest pointer-events-none">Área de Síntese</span>}
+            
+            <div className="absolute top-4 flex flex-wrap-reverse justify-center content-end gap-2 w-full px-4 h-32 overflow-hidden">
+              {scaleItems.map((item, i) => <div key={i} className={`w-10 h-12 ${item.color} rounded border-b-2 text-xs font-bold flex items-center justify-center shadow-md animate-in slide-in-from-top-4`}>{item.symbol}</div>)}
+            </div>
+            
+            {/* Display da Balança */}
+            <div className="w-full bg-neutral-900 border border-neutral-700 p-4 text-center rounded-xl flex flex-col items-center gap-3 shadow-[0_5px_15px_rgba(0,0,0,0.5)] z-10">
+              <span className="text-neutral-500 text-[10px] uppercase font-black tracking-widest">Informar Massa (g/mol)</span>
+              <div className="flex items-center gap-2">
+                <input type="number" value={inputMass} onChange={(e) => setInputMass(e.target.value)} placeholder="000" className={`w-32 bg-black border-2 text-center text-3xl font-mono font-black py-2 rounded focus:outline-none transition-colors ${currentMass === targetMass && inputMass === targetMass.toString() ? 'border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]' : 'border-neutral-700 text-white'}`} />
+              </div>
+            </div>
+          </div>
+          
+          <button 
+            onClick={onComplete} disabled={currentMass !== targetMass || inputMass !== targetMass.toString()} 
+            className={`mt-8 w-full max-w-sm py-4 rounded-xl font-black uppercase tracking-widest transition-all duration-300 ${currentMass === targetMass && inputMass === targetMass.toString() ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.4)] scale-105' : 'bg-neutral-900 border border-neutral-800 text-neutral-600 cursor-not-allowed'}`}
+          >
+            Sintetizar & Injetar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 2: Válvula de Injeção Cega (Slider Contínuo)
+// ============================================================================
+function Module2({ onComplete }) {
+  const [valveVal, setValveVal] = useState(0);
+  const [errorFeedback, setErrorFeedback] = useState(false);
+  const targetMol = 2.7; // 430.65g de CuSO4 (159.5 g/mol)
+  
+  const handleLock = () => {
+    if (valveVal === targetMol) onComplete();
+    else { setErrorFeedback(true); setTimeout(() => setErrorFeedback(false), 2500); }
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={2} title="Válvula de Pressão Estequiométrica" icon={<Icons.Droplet />} instruction="O reator detetou massa no filtro. Calcule a equivalência em quantidade de matéria (mols) e ajuste a válvula rotativa com extrema precisão antes de travar." />
+      
+      <div className="flex-1 flex flex-col md:flex-row gap-12 items-center justify-center mt-6">
+        
+        {/* Painel de Controlo Principal */}
+        <div className="bg-black/40 p-8 rounded-3xl border border-neutral-800 max-w-md w-full relative overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.5)]">
+          
+          {errorFeedback && (
+            <div className="absolute inset-0 bg-red-950/90 backdrop-blur-sm flex flex-col items-center justify-center z-20 animate-in fade-in zoom-in-95">
+              <span className="text-white font-black text-3xl uppercase tracking-widest text-center mb-4">Erro de Dosagem</span>
+              <span className="text-red-300 text-center font-bold px-6 text-sm">A pressão da válvula não corresponde à massa detetada. O sistema rejeitou o bloqueio.</span>
+            </div>
+          )}
+
+          <div className="text-center mb-10 border-b border-neutral-800 pb-6">
+            <p className="text-neutral-500 font-bold text-[10px] uppercase tracking-widest mb-2">Sensor de Filtro Ativo:</p>
+            <p className="text-3xl font-black text-emerald-400 bg-emerald-950/20 py-3 rounded-lg border border-emerald-900/50">430,65 g <span className="text-lg">CuSO₄</span></p>
+            <p className="text-neutral-400 text-xs mt-3 bg-neutral-900 inline-block px-3 py-1 rounded-full">MM Referência: 159,5 g/mol</p>
+          </div>
+
+          <div className="flex flex-col items-center">
+            {/* SVG Valve Wheel */}
+            <div className="relative w-40 h-40 mb-8 cursor-ew-resize">
+              <svg viewBox="0 0 100 100" className="w-full h-full text-blue-500 drop-shadow-[0_0_20px_rgba(59,130,246,0.3)]" style={{ transform: `rotate(${valveVal * 72}deg)`, transition: 'transform 0.1s linear' }}>
+                <circle cx="50" cy="50" r="45" fill="#111" stroke="currentColor" strokeWidth="6"/>
+                <circle cx="50" cy="50" r="15" fill="currentColor"/>
+                <path d="M50 5 L50 35 M50 65 L50 95 M5 50 L35 50 M65 50 L95 50" stroke="currentColor" strokeWidth="6" strokeLinecap="round"/>
+                {/* Indicadores de rotação */}
+                {Array.from({length:12}).map((_,i)=><line key={i} x1="50" y1="5" x2="50" y2="10" stroke="#444" strokeWidth="2" transform={`rotate(${i*30} 50 50)`}/>)}
+              </svg>
+            </div>
+            
+            <label className="text-neutral-500 text-xs uppercase block mb-3 font-bold tracking-widest">Ajuste Manual (Mols):</label>
+            <input type="range" min="0" max="5" step="0.1" value={valveVal} onChange={(e) => setValveVal(parseFloat(e.target.value))} className="w-full h-2 bg-neutral-800 rounded-lg appearance-none cursor-pointer accent-blue-500" />
+            
+            <div className="text-center mt-6 w-full">
+              <div className="bg-black py-3 rounded-xl border border-neutral-800 shadow-inner">
+                <span className="text-5xl font-mono font-black text-white">{valveVal.toFixed(1)}</span>
+                <span className="text-xl text-neutral-500 ml-2 font-bold uppercase tracking-widest">mol</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tanque de Injeção Visual */}
+        <div className="w-24 md:w-32 h-64 md:h-96 border-[6px] border-t-0 border-neutral-800 bg-black rounded-b-3xl relative overflow-hidden flex flex-col justify-end shadow-[0_20px_50px_rgba(0,0,0,0.8)]">
+          {/* Marcações no vidro */}
+          <div className="absolute inset-0 z-10 opacity-30 flex flex-col justify-between py-8">
+             {Array.from({length:5}).map((_,i)=><div key={i} className="w-1/4 h-1 bg-white border-y border-neutral-900"></div>)}
+          </div>
+          {/* Líquido */}
+          <div className="w-full transition-all duration-500 ease-out relative bg-gradient-to-t from-blue-700 to-blue-400" style={{ height: `${(valveVal / 5) * 100}%` }}>
+            <div className="absolute top-0 left-0 w-full h-2 bg-blue-300 opacity-50 rounded-full blur-[2px]"></div>
+            <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_50%_120%,rgba(255,255,255,0.8),transparent)] mix-blend-overlay"></div>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-center mt-10">
+        <button 
+          onClick={handleLock} 
+          className="px-16 py-5 rounded-full font-black uppercase tracking-widest transition-all bg-neutral-900 text-white border border-neutral-700 hover:bg-blue-600 hover:border-blue-400 hover:shadow-[0_0_30px_rgba(59,130,246,0.6)] active:scale-95"
+        >
+          Travar Válvula de Injeção
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 3: Amplificador Quântico (Partículas e Notação Científica)
+// ============================================================================
+function Module3({ onComplete }) {
+  const [mantissa, setMantissa] = useState('');
+  const [expoente, setExpoente] = useState('');
+  
+  const targetParticles = 0.35 * 6.022e23; 
+  const isCorrect = checkSciNotation(mantissa, expoente, targetParticles);
+  const particleCount = Math.min(Math.max((parseInt(expoente) || 0) * 3, 0), 150); 
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={3} title="Amplificador Quântico de Partículas" icon={<Icons.Settings />} instruction="O sensor detetou 0,35 mols de Oxigénio (O₂). Para selar a câmara de vácuo em segurança, introduza o número total exato de moléculas (use Notação Científica)." />
+      
+      <div className="flex-1 flex flex-col md:flex-row gap-8 mt-4 items-center">
+        
+        <div className="bg-black/60 p-8 rounded-3xl border border-neutral-800 flex-1 w-full max-w-md shadow-2xl relative">
+          <div className="absolute top-0 right-0 p-4 opacity-10"><Icons.Settings /></div>
+          
+          <div className="mb-8">
+            <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest block mb-1">Leitura Quântica Atual</span>
+            <p className="text-2xl font-black text-white bg-neutral-900 border border-neutral-800 p-4 rounded-xl">0,35 mols <span className="text-emerald-500">O₂</span></p>
+          </div>
+
+          <div className="bg-emerald-950/20 border border-emerald-900/50 p-6 rounded-2xl mb-8">
+            <p className="text-emerald-500 text-xs font-bold uppercase tracking-widest text-center mb-4">Input de Notação Científica</p>
+            <div className="flex items-center justify-center gap-3">
+              <input type="text" value={mantissa} onChange={(e) => setMantissa(e.target.value)} placeholder="X.XXX" className="w-28 bg-black border-b-2 border-neutral-600 focus:border-emerald-400 text-emerald-400 text-3xl font-mono text-center py-2 transition-colors focus:outline-none" />
+              <span className="text-2xl text-neutral-400 font-black">× 10</span>
+              <div className="flex flex-col -mt-12">
+                <input type="number" value={expoente} onChange={(e) => setExpoente(e.target.value)} placeholder="YY" className="w-20 bg-black border-b-2 border-neutral-600 focus:border-emerald-400 text-emerald-400 text-2xl font-mono text-center py-1 transition-colors focus:outline-none" />
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onClick={onComplete} disabled={!isCorrect} 
+            className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all duration-500 ${isCorrect ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.5)]' : 'bg-neutral-900 border border-neutral-800 text-neutral-600 cursor-not-allowed'}`}
+          >
+            Selar Câmara Quântica
+          </button>
+        </div>
+
+        {/* Simulador de Vácuo (Câmara Quântica) */}
+        <div className="flex-1 w-full bg-[#050505] border-[4px] border-neutral-800 rounded-full relative overflow-hidden h-64 md:h-96 shadow-[inset_0_0_80px_rgba(16,185,129,0.15)] flex items-center justify-center">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.1)_0%,transparent_70%)]"></div>
+          
+          {Array.from({ length: particleCount }).map((_, i) => {
+            const size = Math.random() * 4 + 2;
+            return (
+               <div 
+                 key={i} 
+                 className="absolute rounded-full bg-emerald-400 particle" 
+                 style={{ 
+                   width: size, height: size, 
+                   top: `${Math.random()*100}%`, left: `${Math.random()*100}%`, 
+                   animationDuration: `${Math.random()*4+2}s`, 
+                   animationDelay: `${Math.random()*2}s`,
+                   boxShadow: `0 0 ${size*2}px rgba(52,211,153,0.8)`
+                 }} 
+               />
+            );
+          })}
+          
+          <div className="z-10 text-center pointer-events-none">
+            {particleCount === 0 ? (
+               <span className="text-neutral-700 font-mono text-sm uppercase tracking-widest font-bold">Vácuo Absoluto</span>
+            ) : isCorrect ? (
+               <span className="text-emerald-400 font-mono text-2xl uppercase tracking-widest font-black drop-shadow-[0_0_10px_rgba(16,185,129,1)]">Densidade Estável</span>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 4: Painel Industrial (Estequiometria Dinâmica e Reagente Limitante)
+// ============================================================================
+function Module4({ onComplete }) {
+  const [h2, setH2] = useState(0);
+  const [o2, setO2] = useState(0);
+
+  const h2oProduced = Math.min(h2, o2 * 2);
+  const h2Used = h2oProduced;
+  const o2Used = h2oProduced / 2;
+  const excessH2 = h2 - h2Used;
+  const excessO2 = o2 - o2Used;
+
+  const isTarget = h2oProduced === 4;
+  const isPerfect = isTarget && excessH2 === 0 && excessO2 === 0;
+
+  let reactorStatus = "A aguardar injeção de reagentes...";
+  let statusColor = "text-neutral-500 border-neutral-800";
+  
+  if (h2 === 0 && o2 === 0) { reactorStatus = "Válvulas em modo de espera."; }
+  else if (h2oProduced === 0) { reactorStatus = "Aviso: Falta um dos reagentes para iniciar a síntese química."; statusColor = "text-amber-500 border-amber-900"; }
+  else if (excessH2 > 0 && excessO2 === 0) { reactorStatus = `Falha Crítica: O₂ é o REAGENTE LIMITANTE. Desperdício de ${excessH2} mol de H₂.`; statusColor = "text-red-500 border-red-900 bg-red-950/20"; }
+  else if (excessO2 > 0 && excessH2 === 0) { reactorStatus = `Falha Crítica: H₂ é o REAGENTE LIMITANTE. Desperdício de ${excessO2} mol de O₂.`; statusColor = "text-red-500 border-red-900 bg-red-950/20"; }
+  else if (h2oProduced > 0 && excessH2 === 0 && excessO2 === 0) {
+    if (isTarget) { reactorStatus = "SÍNTESE PERFEITA! Alvo atingido sem desperdício de massa."; statusColor = "text-emerald-400 border-emerald-500 bg-emerald-950/20 font-bold shadow-[0_0_15px_rgba(16,185,129,0.2)]"; }
+    else { reactorStatus = "Proporção estequiométrica correta, mas a massa de H₂O gerada não é a solicitada."; statusColor = "text-blue-400 border-blue-900"; }
+  }
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={4} title="Decodificador Estequiométrico" icon={<Icons.Settings />} instruction="Ajuste o fluxo de mols de Hidrogénio e Oxigénio para sintetizar exatamente 4 Mols de Água (H₂O). O reator bloqueará se detetar Reagentes em Excesso." />
+      
+      <div className="flex-1 flex flex-col items-center mt-2">
+        <div className="mb-6 bg-black border border-neutral-800 py-3 px-8 rounded-xl shadow-inner text-center">
+           <span className="text-neutral-500 text-xs font-bold uppercase tracking-widest block mb-1">Equação Balanceada do Reator:</span>
+           <span className="text-white font-mono font-black text-xl tracking-widest">2 H₂ + 1 O₂ <span className="text-emerald-500 mx-3">➔</span> 2 H₂O</span>
+        </div>
+
+        {/* Visor de Diagnóstico Inteligente */}
+        <div className={`w-full max-w-4xl border-l-4 rounded-r-lg p-5 mb-8 transition-colors duration-300 ${statusColor} bg-neutral-900/50`}>
+          <p className="text-[10px] uppercase tracking-widest font-black opacity-70 mb-1">Diagnóstico em Tempo Real</p>
+          <p className="text-sm md:text-lg">{reactorStatus}</p>
+        </div>
+        
+        <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-12 items-center">
+          
+          {/* Válvulas de Entrada */}
+          <div className="col-span-1 space-y-4">
+            {/* Válvula H2 */}
+            <div className={`p-5 rounded-2xl border-2 transition-colors duration-300 relative overflow-hidden ${excessH2 > 0 ? 'bg-red-950/20 border-red-900/50' : 'bg-black/60 border-neutral-800'}`}>
+              {excessH2 > 0 && <div className="absolute top-0 left-0 w-full h-1 bg-red-500 animate-pulse"></div>}
+              <div className="flex justify-between items-center mb-4"><span className="text-sky-400 font-black text-2xl">H₂</span><span className="text-neutral-600 text-[10px] uppercase font-bold tracking-widest">Gás Entrada</span></div>
+              <div className="flex items-center justify-between bg-neutral-900 p-2 rounded-xl border border-neutral-700 shadow-inner">
+                <button onClick={() => setH2(Math.max(0, h2 - 1))} className="w-10 h-10 bg-neutral-800 hover:bg-neutral-600 rounded-lg text-white font-bold text-2xl transition-colors">-</button>
+                <span className="text-3xl font-mono font-black text-white w-12 text-center">{h2}</span>
+                <button onClick={() => setH2(h2 + 1)} className="w-10 h-10 bg-neutral-800 hover:bg-neutral-600 rounded-lg text-white font-bold text-2xl transition-colors">+</button>
+              </div>
+              <div className="text-xs font-mono font-bold flex justify-between mt-3 px-1">
+                <span className="text-neutral-500">CONSUMIDO: <span className="text-white">{h2Used}</span></span>
+                {excessH2 > 0 && <span className="text-red-500 animate-pulse bg-red-950 px-2 py-0.5 rounded">EXCESSO: {excessH2}</span>}
+              </div>
+            </div>
+
+            {/* Válvula O2 */}
+            <div className={`p-5 rounded-2xl border-2 transition-colors duration-300 relative overflow-hidden ${excessO2 > 0 ? 'bg-red-950/20 border-red-900/50' : 'bg-black/60 border-neutral-800'}`}>
+              {excessO2 > 0 && <div className="absolute top-0 left-0 w-full h-1 bg-red-500 animate-pulse"></div>}
+              <div className="flex justify-between items-center mb-4"><span className="text-amber-400 font-black text-2xl">O₂</span><span className="text-neutral-600 text-[10px] uppercase font-bold tracking-widest">Gás Entrada</span></div>
+              <div className="flex items-center justify-between bg-neutral-900 p-2 rounded-xl border border-neutral-700 shadow-inner">
+                <button onClick={() => setO2(Math.max(0, o2 - 1))} className="w-10 h-10 bg-neutral-800 hover:bg-neutral-600 rounded-lg text-white font-bold text-2xl transition-colors">-</button>
+                <span className="text-3xl font-mono font-black text-white w-12 text-center">{o2}</span>
+                <button onClick={() => setO2(o2 + 1)} className="w-10 h-10 bg-neutral-800 hover:bg-neutral-600 rounded-lg text-white font-bold text-2xl transition-colors">+</button>
+              </div>
+              <div className="text-xs font-mono font-bold flex justify-between mt-3 px-1">
+                <span className="text-neutral-500">CONSUMIDO: <span className="text-white">{o2Used}</span></span>
+                {excessO2 > 0 && <span className="text-red-500 animate-pulse bg-red-950 px-2 py-0.5 rounded">EXCESSO: {excessO2}</span>}
+              </div>
+            </div>
+          </div>
+
+          {/* Seta do Reator */}
+          <div className="hidden md:flex col-span-1 justify-center relative">
+             <div className={`w-full h-1 absolute top-1/2 -translate-y-1/2 -z-10 ${h2oProduced > 0 ? 'bg-gradient-to-r from-neutral-800 to-emerald-500' : 'bg-neutral-800'}`}></div>
+             <div className={`p-4 rounded-full border-4 bg-black ${h2oProduced > 0 ? 'border-emerald-500 text-emerald-500 shadow-[0_0_20px_rgba(16,185,129,0.4)]' : 'border-neutral-800 text-neutral-700'}`}>
+                <Icons.Settings />
+             </div>
+          </div>
+
+          {/* Produto Final (H2O) */}
+          <div className="col-span-1 h-full">
+            <div className={`p-8 rounded-3xl border-2 h-full flex flex-col justify-center items-center transition-all duration-500 relative overflow-hidden ${isTarget && isPerfect ? 'bg-emerald-950/20 border-emerald-500 shadow-[inset_0_0_50px_rgba(16,185,129,0.1)]' : 'bg-black/60 border-neutral-800'}`}>
+              <span className="text-neutral-500 text-[10px] uppercase font-black tracking-widest mb-6">Tanque de Produto Final</span>
+              <span className="text-4xl font-black text-white mb-2 drop-shadow-md">H₂O</span>
+              <div className="bg-neutral-900 border border-neutral-700 w-full py-6 rounded-2xl flex flex-col items-center justify-center shadow-inner mt-4">
+                <span className={`text-7xl font-mono font-black ${isTarget && isPerfect ? 'text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'text-neutral-500'}`}>{h2oProduced}</span>
+                <span className="text-neutral-600 font-bold uppercase tracking-widest mt-2 text-xs">Mols Gerados</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={onComplete} disabled={!isPerfect} 
+          className={`mt-12 px-16 py-5 rounded-full font-black uppercase tracking-widest transition-all duration-300 ${isPerfect ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_40px_rgba(16,185,129,0.6)] scale-105' : 'bg-neutral-900 border border-neutral-800 text-neutral-600 cursor-not-allowed'}`}
+        >
+          Confirmar Síntese de Água
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 5: Painel de Terminais (Hacking Review)
+// ============================================================================
+function Module5({ onComplete }) {
+  const [v1, setV1] = useState(''); const [v2, setV2] = useState('');
+  const [v3, setV3] = useState(''); const [v4, setV4] = useState('');
+
+  const c1 = Math.abs(parseFloat(v1.replace(',', '.')) - 1.5) < 0.05; // 27/18
+  const c2 = Math.abs(parseFloat(v2.replace(',', '.')) - 3.36) < 0.1; // 0.28*12
+  const c3 = v3.trim() === '44'; 
+  const c4 = Math.abs(parseFloat(v4.replace(',', '.')) - 2.71) < 0.05; // 0.45*6.022
+
+  const allCorrect = c1 && c2 && c3 && c4;
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={5} title="Override de Segurança" icon={<Icons.Alert />} instruction="O painel de energia desarmou. Quebre a encriptação dos 4 terminais de contenção simultaneamente convertendo as grandezas químicas pedidas." />
+      
+      <div className="flex-1 flex flex-col mt-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto w-full">
+          {[
+            { c: c1, v: v1, setV: setV1, id: "0x1A", q: "27g de Água (H₂O) = ___ mols?", ph: "Mols" }, 
+            { c: c2, v: v2, setV: setV2, id: "0x2B", q: "0,28 mol de Carbono (C) = ___ g?", ph: "Gramas" }, 
+            { c: c3, v: v3, setV: setV3, id: "0x3C", q: "Massa Molar do Dióxido de Carbono (CO₂) = ___ g/mol?", ph: "g/mol" }, 
+            { c: c4, v: v4, setV: setV4, id: "0x4D", q: "Átomos em 0,45 mol de Hélio (He)? (___ × 10²³)", ph: "Mantissa" }
+          ].map(({ c, v, setV, id, q, ph }, i) => (
+            <div key={i} className={`p-6 rounded-2xl border-l-4 transition-all duration-500 relative overflow-hidden ${c ? 'bg-emerald-950/20 border-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.1)]' : 'bg-black/80 border-amber-500 hover:border-amber-400'}`}>
+              {c && <div className="absolute top-0 right-0 bg-emerald-500 text-black text-[10px] font-black px-2 py-1 rounded-bl-lg uppercase tracking-widest">Bypass OK</div>}
+              <div className="flex items-center gap-3 mb-4">
+                 <span className={`w-2 h-2 rounded-full animate-pulse ${c ? 'bg-emerald-500' : 'bg-amber-500'}`}></span>
+                 <span className="text-[10px] text-neutral-500 font-mono tracking-widest uppercase">Terminal {id}</span>
+              </div>
+              <p className="text-white text-sm font-bold mb-5 h-10">{q}</p>
+              <div className="flex items-center gap-3">
+                <div className="flex-1 bg-neutral-900 p-1 rounded-lg border border-neutral-700">
+                  <input type="text" value={v} onChange={(e) => setV(e.target.value)} disabled={c} placeholder={ph} className={`w-full bg-transparent text-center font-mono text-xl py-2 focus:outline-none transition-colors ${c ? 'text-emerald-400 font-black' : 'text-amber-400 focus:text-amber-300'}`} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-12 flex justify-center items-center h-24">
+          {allCorrect ? (
+            <button onClick={onComplete} className="w-full max-w-lg bg-emerald-600 text-white font-black text-2xl py-6 rounded-2xl uppercase tracking-widest shadow-[0_0_40px_rgba(16,185,129,0.6)] animate-pulse border-2 border-emerald-400 hover:scale-105 transition-transform">
+              Restabelecer Energia
+            </button>
+          ) : (
+             <div className="flex flex-col items-center gap-2 opacity-50">
+               <Icons.Power />
+               <span className="font-bold uppercase tracking-widest text-sm text-neutral-500">Sistemas Trancados</span>
+             </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 6: Scanner Espectral (Tabela Periódica Interativa)
+// ============================================================================
+function Module6({ onComplete }) {
+  const [selectedEl, setSelectedEl] = useState(null);
+  const [inputMass, setInputMass] = useState('');
+  
+  // Elementos representativos 3º período
+  const period3 = [
+    { s: 'Na', n: 'Sódio', m: 23, g: 'Alcalino' }, 
+    { s: 'Mg', n: 'Magnésio', m: 24.3, g: 'Alcalino-Terroso' }, 
+    { s: 'Al', n: 'Alumínio', m: 27, g: 'Metal' }, 
+    { s: 'Si', n: 'Silício', m: 28, g: 'Semimetal' }, 
+    { s: 'P', n: 'Fósforo', m: 31, g: 'Não-Metal' }, 
+    { s: 'S', n: 'Enxofre', m: 32, g: 'Não-Metal' }, 
+    { s: 'Cl', n: 'Cloro', m: 35.5, g: 'Halogénio' }, 
+    { s: 'Ar', n: 'Árgon', m: 40, g: 'Gás Nobre' }
+  ];
+
+  const isCorrect = inputMass.replace(',', '.') === '60.75' && selectedEl?.s === 'Mg';
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={6} title="Scanner Espectral Periódico" icon={<Icons.Search />} instruction="Consulte a Tabela Periódica de emergência. Localize o metal alcalino-terroso do 3º período e calcule a massa necessária para injetar exatamente 2,5 mols no núcleo." />
+      
+      <div className="flex-1 flex flex-col items-center mt-4">
+        
+        {/* Grade da Tabela Periódica */}
+        <div className="w-full max-w-4xl bg-black/60 p-6 rounded-2xl border border-neutral-800 shadow-inner mb-8 overflow-x-auto">
+          <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mb-4">Fragmento Recuperado: 3º Período</p>
+          <div className="flex gap-3 justify-center min-w-max">
+            {period3.map(el => (
+              <button 
+                key={el.s} onClick={() => setSelectedEl(el)} 
+                className={`w-20 h-24 rounded-xl flex flex-col items-center justify-center border-2 transition-all duration-300 relative overflow-hidden ${selectedEl?.s === el.s ? 'bg-emerald-900 border-emerald-500 scale-110 shadow-[0_0_15px_rgba(16,185,129,0.4)] z-10' : 'bg-neutral-900 border-neutral-700 hover:border-neutral-500 hover:-translate-y-1'}`}
+              >
+                <span className="absolute top-1 left-2 text-[8px] opacity-50">{el.m}</span>
+                <span className={`font-black text-3xl mt-2 ${selectedEl?.s === el.s ? 'text-white' : 'text-neutral-400'}`}>{el.s}</span>
+                <span className="text-[9px] uppercase font-bold opacity-60 mt-1">{el.n}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Computador de Injeção */}
+        <div className={`w-full max-w-lg p-8 rounded-3xl border-2 transition-all duration-500 ${selectedEl ? 'bg-neutral-900/80 border-emerald-800 shadow-2xl scale-100 opacity-100' : 'scale-95 opacity-0 pointer-events-none'}`}>
+          {selectedEl && (
+            <>
+              <div className="text-center border-b border-neutral-800 pb-6 mb-6">
+                <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold">Elemento em Foco</p>
+                <h4 className="text-3xl font-black text-white mt-1">{selectedEl.n} <span className="text-emerald-500">({selectedEl.s})</span></h4>
+                <p className="text-emerald-600 text-sm mt-1">{selectedEl.g}</p>
+                <div className="mt-4 inline-block bg-black px-4 py-2 rounded-lg border border-neutral-700 font-mono text-neutral-300">MM: {selectedEl.m} g/mol</div>
+              </div>
+              
+              <div className="flex flex-col items-center gap-4">
+                <label className="uppercase text-xs font-bold text-neutral-400 tracking-widest">Comando de Injeção (Para 2,5 mols):</label>
+                <div className="bg-black p-2 rounded-xl border border-neutral-700 flex items-center gap-3">
+                  <input type="text" value={inputMass} onChange={(e)=>setInputMass(e.target.value)} placeholder="0.00" className="w-32 bg-transparent text-emerald-400 text-4xl font-mono text-center focus:outline-none placeholder-neutral-800"/>
+                  <span className="text-neutral-500 font-bold pr-4">Gramas</span>
+                </div>
+              </div>
+              
+              <button 
+                onClick={onComplete} disabled={!isCorrect} 
+                className={`mt-8 w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all duration-300 ${isCorrect ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.5)]' : 'bg-black border border-neutral-800 text-neutral-600 cursor-not-allowed'}`}
+              >
+                Autorizar Combustível
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 7: Balança Centrífuga (Animação de Rotação/Gangorra)
+// ============================================================================
+function Module7({ onComplete }) {
+  const [slider, setSlider] = useState(0); 
+  const massLeft = 132; // 3 mols de CO2 (44 * 3)
+  const massRight = slider * 46; // Etanol MM=46
+  
+  const isBalanced = massRight >= 131.5 && massRight <= 132.5; // ~2.87 mols
+  // O ângulo de rotação é limitado a -25 e 25 graus para não quebrar o layout
+  const rotation = Math.max(-25, Math.min(25, (massRight - massLeft) * 0.4));
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={7} title="Balança Centrífuga de Eixos" icon={<Icons.Scale />} instruction="O motor esquerdo pesa com 3 mols de Dióxido de Carbono (CO₂). Estabilize o eixo injetando a quantidade matemática exata de Etanol (C₂H₆O) no motor direito." />
+      
+      <div className="flex-1 flex flex-col items-center justify-center mt-8">
+        
+        {/* Balança Física Renderizada */}
+        <div className="w-full max-w-3xl h-64 relative mb-16 flex justify-center perspective-1000">
+          {/* Eixo horizontal (Gangorra) */}
+          <div className="w-full h-4 bg-gradient-to-b from-neutral-500 to-neutral-700 absolute bottom-12 origin-center transition-transform duration-500 ease-out rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.5)] border-b-2 border-neutral-900" style={{ transform: `rotate(${rotation}deg)` }}>
+            
+            {/* Prato Esquerdo (Fixo) */}
+            <div className="absolute -top-24 left-8 w-32 h-24 bg-gradient-to-br from-red-900 to-red-950 border-4 border-red-600 flex items-center justify-center rounded-2xl text-white font-bold flex-col shadow-[0_15px_30px_rgba(220,38,38,0.3)]">
+              <span className="text-3xl font-black font-mono">3.0</span>
+              <span className="text-xs uppercase tracking-widest text-red-300 mt-1">mols CO₂</span>
+              <div className="absolute -bottom-8 w-2 h-8 bg-neutral-600"></div> {/* Haste */}
+            </div>
+
+            {/* Prato Direito (Variável) */}
+            <div className={`absolute -top-24 right-8 w-32 h-24 border-4 flex items-center justify-center rounded-2xl text-white font-bold flex-col transition-colors duration-300 ${isBalanced ? 'bg-gradient-to-br from-emerald-600 to-emerald-800 border-emerald-400 shadow-[0_15px_40px_rgba(16,185,129,0.5)]' : 'bg-gradient-to-br from-blue-900 to-blue-950 border-blue-500 shadow-[0_15px_30px_rgba(59,130,246,0.3)]'}`}>
+              <span className="text-3xl font-black font-mono">{slider.toFixed(2)}</span>
+              <span className={`text-xs uppercase tracking-widest mt-1 ${isBalanced ? 'text-emerald-200' : 'text-blue-300'}`}>mols C₂H₆O</span>
+              <div className="absolute -bottom-8 w-2 h-8 bg-neutral-600"></div> {/* Haste */}
+            </div>
+
+          </div>
+
+          {/* Triângulo Base Central */}
+          <div className="w-0 h-0 border-l-[30px] border-l-transparent border-r-[30px] border-r-transparent border-b-[60px] border-b-neutral-700 absolute bottom-0 drop-shadow-2xl">
+             <div className="absolute top-[20px] -left-[5px] w-[10px] h-[10px] bg-neutral-900 rounded-full"></div> {/* Parafuso */}
+          </div>
+        </div>
+
+        {/* Controlo de Interface */}
+        <div className="w-full max-w-xl bg-black/50 p-8 rounded-3xl border border-neutral-800 text-center backdrop-blur-md">
+          <div className="flex justify-between text-[10px] font-bold uppercase tracking-widest mb-4">
+             <span className="text-neutral-500">Fluxo Fechado</span>
+             <span className="text-emerald-500">Injeção Máxima</span>
+          </div>
+          <input 
+            type="range" min="0" max="5" step="0.01" value={slider} onChange={e=>setSlider(parseFloat(e.target.value))} 
+            className="w-full h-4 bg-neutral-900 rounded-full appearance-none cursor-pointer accent-emerald-500 mb-8 border border-neutral-700 shadow-inner"
+          />
+          
+          <button 
+            onClick={onComplete} disabled={!isBalanced} 
+            className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all duration-300 ${isBalanced ? 'bg-emerald-600 text-white shadow-[0_0_30px_rgba(16,185,129,0.5)] scale-105' : 'bg-neutral-900 text-neutral-600 cursor-not-allowed border border-neutral-800'}`}
+          >
+            Travar Eixo de Rotação
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 8: Lente Quântica (Efeito Focus/Blur)
+// ============================================================================
+function Module8({ onComplete }) {
+  const [mantissa, setMantissa] = useState('');
+  const [expoente, setExpoente] = useState('');
+  
+  // Ouro (Au) = 197g/mol. 8.86g = 0.045 mol -> 0.045 * 6.022e23 = 2.7099e22 átomos.
+  const targetVal = 0.045 * 6.022e23;
+  const isCorrect = checkSciNotation(mantissa, expoente, targetVal);
+  const blurAmount = isCorrect ? 0 : Math.max(2, 25 - (parseFloat(mantissa) || 0) * 3);
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={8} title="Foco Microscópico Quântico" icon={<Icons.Target />} instruction="Uma amostra física de Ouro (Au) bloqueia a lente primária. Calcule o número absoluto de átomos presentes na amostra para o laser vaporizar a obstrução." />
+      
+      <div className="flex-1 flex flex-col md:flex-row gap-8 mt-4 items-center">
+        
+        {/* Visor do Lente */}
+        <div className="w-full md:w-1/2 max-w-sm aspect-square bg-black border-8 border-neutral-800 rounded-full relative overflow-hidden flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.8)]">
+           <div className="absolute inset-0 bg-amber-500 opacity-30 transition-all duration-700 ease-in-out" style={{ filter: `blur(${blurAmount}px)` }}>
+              {/* Textura simulada da rede cristalina que só se vê focada */}
+              <div className="w-full h-full bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%),linear-gradient(-45deg,transparent_25%,rgba(255,255,255,0.2)_50%,transparent_75%)] bg-[length:20px_20px]"></div>
+           </div>
+           
+           {/* Crosshair (Mira) */}
+           <div className="absolute inset-0 pointer-events-none opacity-40">
+             <div className="w-full h-[2px] bg-red-500 absolute top-1/2 -translate-y-1/2"></div>
+             <div className="h-full w-[2px] bg-red-500 absolute left-1/2 -translate-x-1/2"></div>
+             <circle cx="50%" cy="50%" r="25%" fill="none" stroke="red" strokeWidth="2" />
+           </div>
+
+           {isCorrect && (
+             <div className="absolute inset-0 bg-amber-500/40 flex items-center justify-center animate-in fade-in zoom-in">
+               <div className="bg-black/80 px-6 py-2 rounded border border-amber-400">
+                  <span className="font-black text-amber-400 uppercase tracking-widest text-lg animate-pulse">Alvo Trancado</span>
+               </div>
+             </div>
+           )}
+        </div>
+        
+        {/* Terminal de Controlo */}
+        <div className="w-full md:w-1/2 bg-black/60 p-8 rounded-3xl border border-neutral-800 flex flex-col justify-center shadow-inner">
+          <div className="mb-8 border-l-4 border-amber-500 pl-4">
+             <p className="text-[10px] text-neutral-500 uppercase tracking-widest font-bold mb-1">Análise Espectral</p>
+             <p className="text-white font-black text-2xl">8,86 g <span className="text-amber-500 text-lg ml-2">Ouro (Au)</span></p>
+          </div>
+
+          <div className="bg-neutral-900 border border-neutral-700 p-6 rounded-2xl mb-8">
+            <label className="text-[10px] uppercase text-neutral-500 font-bold tracking-widest block mb-4">Parâmetros de Focagem (Notação Científica)</label>
+            <div className="flex items-center justify-center gap-4">
+              <input type="text" value={mantissa} onChange={e=>setMantissa(e.target.value)} placeholder="0.00" className="w-28 bg-black border-2 border-neutral-800 focus:border-amber-500 text-amber-400 text-3xl font-mono text-center py-2 rounded transition-colors focus:outline-none" />
+              <span className="text-2xl text-neutral-600 font-black">×10</span>
+              <div className="flex flex-col -mt-10">
+                <input type="number" value={expoente} onChange={e=>setExpoente(e.target.value)} placeholder="yy" className="w-20 bg-black border-2 border-neutral-800 focus:border-amber-500 text-amber-400 text-xl font-mono text-center py-1 rounded transition-colors focus:outline-none" />
+              </div>
+            </div>
+          </div>
+
+          <button 
+            onClick={onComplete} disabled={!isCorrect} 
+            className={`w-full py-4 rounded-xl font-black uppercase tracking-widest transition-all duration-300 ${isCorrect ? 'bg-amber-600 text-white shadow-[0_0_30px_rgba(217,119,6,0.6)] hover:bg-amber-500' : 'bg-neutral-900 text-neutral-600 border border-neutral-800 cursor-not-allowed'}`}
+          >
+            Disparar Laser Primário
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 9: Balões de Contenção (Bomba de Ar Interativa com Loop)
+// ============================================================================
+function Module9({ onComplete }) {
+  const targets = [
+    { id: 1, atomsStr: "9,03 × 10²²", targetMass: 0.60 }, 
+    { id: 2, atomsStr: "2,56 × 10²³", targetMass: 1.70 }, 
+    { id: 3, atomsStr: "4,51 × 10²³", targetMass: 3.00 }  
+  ];
+
+  const [balloons, setBalloons] = useState([
+    { id: 1, mass: 0, status: 'pending' }, { id: 2, mass: 0, status: 'pending' }, { id: 3, mass: 0, status: 'pending' }
+  ]);
+  const [activeId, setActiveId] = useState(1);
+  const [pumpAnim, setPumpAnim] = useState(false);
+
+  // Ação da bomba mecânica (0.05g por clique)
+  const handlePump = () => {
+    if (balloons.find(b => b.id === activeId).status !== 'pending') return;
+    setPumpAnim(true);
+    setTimeout(() => setPumpAnim(false), 150); // Reset animation fast
+    setBalloons(prev => prev.map(b => b.id === activeId ? { ...b, mass: +(b.mass + 0.05).toFixed(2) } : b));
+  };
+
+  const lockBalloon = (id) => {
+    const target = targets.find(t => t.id === id).targetMass;
+    setBalloons(prev => prev.map(b => {
+      if (b.id === id) {
+        if (Math.abs(b.mass - target) < 0.02) return { ...b, status: 'locked' };
+        else {
+          setTimeout(() => setBalloons(curr => curr.map(cb => cb.id === id ? { ...cb, mass: 0, status: 'pending' } : cb)), 1500);
+          return { ...b, status: 'exploded' };
+        }
+      }
+      return b;
+    }));
+  };
+
+  useEffect(() => {
+    if (balloons.every(b => b.status === 'locked')) setTimeout(onComplete, 1500);
+  }, [balloons, onComplete]);
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={9} title="Calibração Tripla Pneumática" icon={<Icons.Wind />} instruction="Injete massa mecânica nos três balões independentes usando a bomba de ar inferior. O Gás Hélio (He = 4g/mol) deve corresponder exatamente ao número de partículas do alvo antes de travar a válvula." />
+      
+      <div className="flex-1 flex flex-col items-center mt-4">
+        
+        {/* Visor dos 3 Balões */}
+        <div className="flex flex-wrap gap-4 md:gap-6 mb-8 justify-center w-full">
+          {targets.map(t => {
+            const b = balloons.find(bal => bal.id === t.id);
+            const isActive = activeId === t.id;
+            return (
+              <div 
+                key={t.id} onClick={() => setActiveId(t.id)} 
+                className={`flex flex-col items-center p-4 rounded-3xl border-2 cursor-pointer transition-all duration-300 w-[140px] md:w-[180px] ${isActive ? 'bg-neutral-900 border-sky-500 shadow-[0_0_20px_rgba(56,189,248,0.2)] -translate-y-2' : 'bg-black/60 border-neutral-800 opacity-60 hover:opacity-100'}`}
+              >
+                <div className="text-center mb-4 border-b border-neutral-800 pb-2 w-full">
+                  <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest block mb-1">Alvo Quântico</span>
+                  <span className="text-sm font-mono font-bold text-white">{t.atomsStr}</span>
+                </div>
+                
+                <div className="relative w-24 h-24 md:w-32 md:h-32 mb-6 flex items-end justify-center">
+                  {/* Bico do balão (nó) */}
+                  <div className="absolute bottom-0 w-4 h-6 bg-sky-900 rounded-t border border-sky-700"></div>
+                  
+                  {b.status === 'exploded' ? (
+                     <div className="absolute inset-0 flex items-center justify-center">
+                       <span className="text-red-500 font-black text-2xl animate-ping drop-shadow-[0_0_10px_rgba(239,68,68,1)]">BOOM!</span>
+                     </div>
+                  ) : (
+                     <div className={`rounded-[40%_40%_50%_50%] transition-all duration-300 origin-bottom flex items-center justify-center shadow-[inset_-10px_-10px_20px_rgba(0,0,0,0.5)] ${b.status === 'locked' ? 'bg-emerald-500 border-4 border-emerald-300' : 'bg-gradient-to-tr from-sky-600 to-sky-400 border border-sky-300'}`} style={{ width: `${Math.max(30, b.mass * 20 + 30)}px`, height: `${Math.max(30, b.mass * 20 + 30)}px` }}>
+                       {b.status === 'locked' && <Icons.Target />}
+                     </div>
+                  )}
+                </div>
+
+                <div className="bg-black w-full py-2 rounded-lg border border-neutral-800 text-center mb-4">
+                   <span className="text-2xl font-mono font-black text-white">{b.mass.toFixed(2)}</span>
+                   <span className="text-xs text-neutral-500 ml-1">g</span>
+                </div>
+
+                <button 
+                  onClick={(e) => { e.stopPropagation(); lockBalloon(t.id); }} 
+                  disabled={b.status !== 'pending' || b.mass === 0} 
+                  className={`w-full py-3 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${b.status === 'locked' ? 'bg-emerald-600 text-white' : b.mass > 0 ? 'bg-sky-600 hover:bg-sky-500 text-white hover:shadow-[0_0_15px_rgba(56,189,248,0.5)]' : 'bg-neutral-800 text-neutral-600'}`}
+                >
+                  {b.status === 'locked' ? 'Selado' : 'Travar'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Bomba Mecânica Grande */}
+        <div className="w-full max-w-sm flex flex-col items-center">
+          <div className="w-20 h-24 bg-gradient-to-b from-neutral-800 to-neutral-900 border-x-4 border-t-4 border-neutral-700 relative flex justify-center rounded-t-xl overflow-hidden shadow-inner">
+            {/* Pistão (haste que sobe e desce) */}
+            <div className={`w-8 bg-gradient-to-r from-neutral-400 to-neutral-500 absolute transition-all ease-out ${pumpAnim ? 'h-full top-24' : 'h-32 -top-16'} rounded border border-neutral-300`}></div>
+          </div>
+          <button 
+            onMouseDown={handlePump} onTouchStart={handlePump} 
+            className="w-full py-6 bg-gradient-to-b from-neutral-800 to-black border border-neutral-700 rounded-b-3xl rounded-t flex items-center justify-center shadow-[0_15px_30px_rgba(0,0,0,0.8)] active:shadow-none active:translate-y-2 cursor-pointer transition-all select-none group"
+          >
+            <span className="font-black text-2xl uppercase tracking-widest text-neutral-400 group-active:text-sky-400 transition-colors">Abaixar Bomba</span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 10: Sintetizador de Senhas (Puzzle Estilo Lego/Inventário)
+// ============================================================================
+function Module10({ onComplete }) {
+  const [assembled, setAssembled] = useState([]);
+  
+  const blocks = [
+    { s: 'Cu', c: 'bg-gradient-to-br from-orange-600 to-orange-800 border-orange-500' }, 
+    { s: 'S', c: 'bg-gradient-to-br from-yellow-500 to-yellow-700 border-yellow-400 text-black' }, 
+    { s: 'O', c: 'bg-gradient-to-br from-sky-500 to-sky-700 border-sky-400' }, 
+    { s: 'C', c: 'bg-gradient-to-br from-stone-600 to-stone-900 border-stone-500' }, 
+    { s: 'H', c: 'bg-gradient-to-br from-neutral-200 to-neutral-400 border-white text-black' }
+  ];
+
+  // Regra de vitória: CuSO4 (1x Cu, 1x S, 4x O, 0 C, 0 H)
+  const checkWin = () => {
+    const counts = { Cu: 0, S: 0, O: 0, C: 0, H: 0 };
+    assembled.forEach(b => counts[b.s]++);
+    return counts.Cu === 1 && counts.S === 1 && counts.O === 4 && counts.C === 0 && counts.H === 0;
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={10} title="Matriz Sintetizadora" icon={<Icons.Hexagon />} instruction="A senha de acesso primário é estrutural, não numérica. Construa uma molécula de forma que 0,5 mol dessa substância inteira possua uma massa exata de 80 gramas." />
+      
+      <div className="flex-1 flex flex-col mt-4 items-center">
+        
+        {/* Inventário Superior */}
+        <div className="bg-black/60 p-6 rounded-2xl border border-neutral-800 w-full max-w-2xl mb-8">
+           <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest text-center mb-4">Dispensador de Átomos (Clique para adicionar)</p>
+           <div className="flex flex-wrap gap-4 justify-center">
+             {blocks.map(b => (
+               <button 
+                 key={b.s} onClick={() => setAssembled([...assembled, b])} 
+                 className={`w-16 h-16 ${b.c} rounded-xl border-2 flex items-center justify-center font-black text-2xl hover:scale-110 shadow-lg hover:shadow-xl hover:brightness-125 transition-all`}
+               >
+                 {b.s}
+               </button>
+             ))}
+           </div>
+        </div>
+
+        {/* Palco de Montagem */}
+        <div className="w-full max-w-2xl bg-[#0a0a0a] border-4 border-dashed border-emerald-900/50 rounded-3xl flex flex-col p-6 min-h-[200px] shadow-inner relative">
+          
+          <div className="absolute top-4 right-6 bg-black border border-neutral-800 px-3 py-1 rounded text-xs font-bold text-neutral-500">
+            {assembled.length} átomos na matriz
+          </div>
+
+          <div className="flex-1 flex flex-wrap content-center justify-center gap-3 w-full">
+            {assembled.length === 0 && <span className="text-neutral-700 uppercase font-black tracking-widest text-xl opacity-50 text-center w-full">Área de Síntese Vazia<br/><span className="text-xs font-normal opacity-50 block mt-2">(Clique num bloco para o desinstalar)</span></span>}
+            
+            {assembled.map((b, i) => (
+              <div 
+                key={i} onClick={() => setAssembled(assembled.filter((_, idx) => idx !== i))} 
+                className={`w-16 h-16 ${b.c} rounded-xl border-2 flex items-center justify-center font-black text-2xl cursor-pointer hover:opacity-20 hover:scale-90 transition-all shadow-md animate-in zoom-in`}
+              >
+                {b.s}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="mt-8 flex justify-center gap-6 w-full max-w-2xl">
+           <button onClick={() => setAssembled([])} className="px-8 py-4 bg-neutral-900 border border-neutral-700 text-white rounded-xl font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors">Reset</button>
+           <button 
+             onClick={onComplete} disabled={!checkWin()} 
+             className={`flex-1 py-4 rounded-xl font-black uppercase tracking-widest transition-all duration-500 ${checkWin() ? 'bg-emerald-600 border border-emerald-400 text-white shadow-[0_0_40px_rgba(16,185,129,0.5)] hover:bg-emerald-500 scale-105' : 'bg-black border border-neutral-800 text-neutral-700 cursor-not-allowed'}`}
+           >
+             Validar Matriz Sintetizada
+           </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 11: O Gás do Riso (Análise Molecular SVG 3D-Like)
+// ============================================================================
+function Module11({ onComplete }) {
+  const [n1, setN1] = useState(''); const [n2, setN2] = useState(''); const [o, setO] = useState('');
+  const [ans, setAns] = useState(''); 
+  const [activeAtom, setActiveAtom] = useState(null); 
+
+  const n1Ok = n1 === '14'; const n2Ok = n2 === '14'; const oOk = o === '16';
+  const isMolOk = n1Ok && n2Ok && oOk;
+  const isFinalOk = ans === '110'; // 2.5 * 44
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={11} title="Reconstrução de Óxido Nitroso" icon={<Icons.Cube />} instruction="Uma molécula essencial perdeu os metadados de identificação atómica. Clique nos nódulos e use valência e a Tabela Periódica para restaurar as massas." />
+      
+      <div className="flex-1 flex flex-col items-center mt-2">
+        
+        {/* Palco SVG Molecular */}
+        <div className="w-full max-w-2xl h-64 bg-gradient-to-b from-neutral-900 to-black border-2 border-neutral-800 rounded-3xl flex items-center justify-center relative mb-8 shadow-inner perspective-1000 overflow-visible">
+          
+          <svg viewBox="0 0 300 150" className="w-full h-full drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] overflow-visible">
+            {/* Ligações Covalentes (Simuladas com 3D shading) */}
+            <line x1="75" y1="75" x2="150" y2="75" stroke="#333" strokeWidth="12" strokeLinecap="round" />
+            <line x1="150" y1="75" x2="225" y2="75" stroke="#333" strokeWidth="12" strokeLinecap="round" />
+            
+            {/* Sombras base dos átomos */}
+            <circle cx="75" cy="110" r="15" fill="rgba(0,0,0,0.5)" filter="blur(8px)"/>
+            <circle cx="150" cy="110" r="15" fill="rgba(0,0,0,0.5)" filter="blur(8px)"/>
+            <circle cx="225" cy="110" r="15" fill="rgba(0,0,0,0.5)" filter="blur(8px)"/>
+
+            {/* Átomos (Azul = N, Vermelho = O) */}
+            <circle cx="75" cy="75" r="28" onClick={() => setActiveAtom('n1')} className={`cursor-pointer transition-all duration-500 stroke-4 ${n1Ok ? 'fill-emerald-500 stroke-emerald-300 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'fill-blue-600 stroke-blue-400 hover:fill-blue-500'}`} />
+            <circle cx="150" cy="75" r="28" onClick={() => setActiveAtom('n2')} className={`cursor-pointer transition-all duration-500 stroke-4 ${n2Ok ? 'fill-emerald-500 stroke-emerald-300 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'fill-blue-600 stroke-blue-400 hover:fill-blue-500'}`} />
+            <circle cx="225" cy="75" r="28" onClick={() => setActiveAtom('o')} className={`cursor-pointer transition-all duration-500 stroke-4 ${oOk ? 'fill-emerald-500 stroke-emerald-300 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'fill-red-600 stroke-red-400 hover:fill-red-500'}`} />
+            
+            {/* Brilhos (Highlights 3D) */}
+            <circle cx="65" cy="65" r="8" fill="#fff" opacity="0.3" pointerEvents="none"/>
+            <circle cx="140" cy="65" r="8" fill="#fff" opacity="0.3" pointerEvents="none"/>
+            <circle cx="215" cy="65" r="8" fill="#fff" opacity="0.3" pointerEvents="none"/>
+          </svg>
+          
+          {/* Menu Contextual (Tooltip) */}
+          {activeAtom && !isMolOk && (
+            <div className="absolute bottom-4 bg-black/90 backdrop-blur border border-neutral-600 p-5 rounded-xl text-center animate-in zoom-in shadow-2xl z-20">
+              <span className="block text-amber-500 font-black mb-3 tracking-widest uppercase">
+                {activeAtom === 'o' ? 'Elemento Z (Valência 2)' : 'Elemento Y (Valência 3)'}
+              </span>
+              <div className="flex items-center gap-3">
+                 <label className="text-neutral-400 text-xs font-bold uppercase">Massa Molar Atómica (g/mol):</label>
+                 <input 
+                   type="text" autoFocus
+                   value={activeAtom === 'n1' ? n1 : activeAtom === 'n2' ? n2 : o}
+                   onChange={(e) => {
+                     const val = e.target.value;
+                     if(activeAtom === 'n1') setN1(val); if(activeAtom === 'n2') setN2(val); if(activeAtom === 'o') setO(val);
+                   }}
+                   className="w-16 bg-neutral-900 border-2 border-neutral-600 focus:border-amber-400 focus:outline-none text-white font-mono text-xl text-center rounded py-1"
+                 />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Desafio Final Oculto */}
+        <div className={`w-full max-w-2xl transition-all duration-700 ${isMolOk ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+          <div className="bg-emerald-950/30 border-2 border-emerald-900 p-8 rounded-3xl text-center shadow-[0_0_30px_rgba(16,185,129,0.15)]">
+            <p className="text-emerald-400 font-black text-xl mb-4 uppercase tracking-widest">Estrutura Molecular Aceita</p>
+            <p className="text-neutral-300 text-lg mb-6">Para encher os tanques suplementares, informe qual será a massa final (em gramas) caso sejam injetados <strong className="text-amber-400 bg-amber-950/40 px-2 rounded">2,5 mols</strong> desta molécula.</p>
+            
+            <div className="flex justify-center items-center gap-4">
+               <input type="text" value={ans} onChange={(e)=>setAns(e.target.value)} placeholder="000" className="w-32 bg-black border-b-4 border-emerald-700 text-emerald-400 text-center py-3 text-4xl font-black font-mono focus:outline-none focus:border-emerald-400 transition-colors" />
+               <span className="text-neutral-500 font-bold text-xl">g</span>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={onComplete} disabled={!isFinalOk} 
+          className={`mt-10 px-16 py-5 rounded-full font-black uppercase tracking-widest transition-all duration-500 ${isFinalOk ? 'bg-emerald-600 border border-emerald-400 text-white shadow-[0_0_40px_rgba(16,185,129,0.5)] scale-105' : 'bg-black border border-neutral-800 text-neutral-600 cursor-not-allowed'}`}
+        >
+          Gravar Modificações
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 12: A Falha Estrutural (Animação de Glitch Pesada)
+// ============================================================================
+function Module12({ onComplete }) {
+  const [sMass, setSMass] = useState('');
+  const isCorrect = sMass === '32';
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={12} title="Falha Estrutural no Núcleo" icon={<Icons.Alert />} instruction="O sensor da molécula de Gás Sulfídrico (H₂S) corrompeu o núcleo central. Deduza a massa molar do átomo central sabendo a massa total da molécula para reverter o colapso." />
+      
+      <div className="flex-1 flex flex-col items-center mt-2">
+        <div className="bg-red-950/40 border-2 border-red-900 p-6 rounded-2xl text-center mb-8 max-w-2xl w-full shadow-[0_0_20px_rgba(220,38,38,0.2)]">
+          <p className="text-red-500 font-black text-xl uppercase tracking-widest mb-2 flex justify-center items-center gap-2">
+            <span className="animate-ping"><Icons.Alert /></span> Corrupção de Dados Detetada
+          </p>
+          <p className="text-neutral-300 text-sm md:text-base">A balança digital reporta a massa total exata de <strong className="text-amber-400 bg-amber-950/50 px-2 rounded text-lg">34 g/mol</strong> para a estrutura completa que se apresenta no ecrã.</p>
+        </div>
+        
+        {/* Renderização do Átomo Corrompido */}
+        <div className="w-full max-w-lg h-72 bg-[#050505] border-4 border-neutral-800 rounded-3xl flex items-center justify-center relative mb-8 overflow-hidden shadow-inner">
+          <svg viewBox="0 0 200 150" className={`w-full h-full drop-shadow-2xl transition-all duration-300 ${isCorrect ? '' : 'glitch-anim-fast'}`}>
+            <line x1="100" y1="50" x2="50" y2="100" stroke="#333" strokeWidth="6" />
+            <line x1="100" y1="50" x2="150" y2="100" stroke="#333" strokeWidth="6" />
+            
+            <circle cx="50" cy="100" r="18" fill="#e5e5e5" />
+            <text x="50" y="105" textAnchor="middle" fontSize="12" fill="#000" fontWeight="bold">H:1</text>
+            <circle cx="150" cy="100" r="18" fill="#e5e5e5" />
+            <text x="150" y="105" textAnchor="middle" fontSize="12" fill="#000" fontWeight="bold">H:1</text>
+            
+            <circle cx="100" cy="50" r="35" fill={isCorrect ? "#10b981" : "#b45309"} stroke={isCorrect ? "#34d399" : "#f59e0b"} strokeWidth="4" />
+            <text x="100" y="58" textAnchor="middle" fontSize="24" fill={isCorrect ? "#000" : "#fff"} fontWeight="black">{isCorrect ? "S:32" : "ERROR"}</text>
+          </svg>
+
+          {!isCorrect && <div className="absolute inset-0 bg-[repeating-linear-gradient(0deg,transparent,transparent_2px,rgba(255,0,0,0.1)_2px,rgba(255,0,0,0.1)_4px)] pointer-events-none mix-blend-overlay"></div>}
+        </div>
+
+        <div className="w-full max-w-md bg-black border border-neutral-800 p-6 rounded-2xl text-center">
+          <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-4">Massa Atómica do Elemento Central:</p>
+          <input 
+            type="text" value={sMass} onChange={(e)=>setSMass(e.target.value)} placeholder="00" 
+            className={`w-32 bg-neutral-900 border-b-4 text-center py-3 text-4xl font-mono font-black rounded-t focus:outline-none transition-colors ${isCorrect ? 'border-emerald-500 text-emerald-400 shadow-[0_10px_20px_rgba(16,185,129,0.2)]' : 'border-amber-600 text-amber-500 focus:border-amber-400'}`} 
+          />
+        </div>
+
+        <button 
+          onClick={onComplete} disabled={!isCorrect} 
+          className={`mt-10 w-full max-w-md py-5 rounded-xl font-black uppercase tracking-widest transition-all duration-300 ${isCorrect ? 'bg-emerald-600 border border-emerald-400 text-white shadow-[0_0_40px_rgba(16,185,129,0.6)]' : 'bg-neutral-900 border border-neutral-800 text-neutral-700 cursor-not-allowed'}`}
+        >
+          Reparar Integridade Estrutural
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 13: Combustível Fóssil (Estrutura CH4 Múltiplos Inputs)
+// ============================================================================
+function Module13({ onComplete }) {
+  const [c, setC] = useState('');
+  const [h1, setH1] = useState(''); const [h2, setH2] = useState(''); const [h3, setH3] = useState(''); const [h4, setH4] = useState('');
+  const [ans, setAns] = useState('');
+
+  const cOk = c === '12';
+  const hOk = h1 === '1' && h2 === '1' && h3 === '1' && h4 === '1';
+  const isMolOk = cOk && hOk;
+  const isFinalOk = ans === '8' || ans === '8.0' || ans === '8,0';
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={13} title="Combustível de Backup" icon={<Icons.Power />} instruction="Para acionar os geradores secundários é necessário Metano (CH₄). Insira as propriedades atómicas para calibrar o reator. Depois calcule a massa para meio mol exato da substância." />
+      
+      <div className="flex-1 flex flex-col items-center mt-2">
+        <div className="flex w-full max-w-4xl gap-8 flex-col md:flex-row">
+          
+          {/* Gráfico CH4 */}
+          <div className="flex-1 h-72 bg-[#050505] border-4 border-neutral-800 rounded-3xl relative overflow-hidden flex items-center justify-center shadow-[inset_0_0_50px_rgba(0,0,0,1)]">
+             <div className="absolute top-4 right-4 bg-black/80 backdrop-blur p-3 border-2 border-neutral-700 text-xs font-bold rounded-lg shadow-lg">
+                <span className="text-neutral-500 uppercase tracking-widest block mb-1">Massa Total Calculada</span>
+                <span className={`text-2xl font-mono ${isMolOk ? 'text-emerald-400' : 'text-neutral-600'}`}>{isMolOk ? '16 g/mol' : 'ERROR'}</span>
+             </div>
+             <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
+                {/* Ligações Tetraédricas */}
+                <line x1="100" y1="100" x2="100" y2="30" stroke="#444" strokeWidth="8" strokeLinecap="round"/>
+                <line x1="100" y1="100" x2="35" y2="145" stroke="#444" strokeWidth="8" strokeLinecap="round"/>
+                <line x1="100" y1="100" x2="165" y2="145" stroke="#444" strokeWidth="8" strokeLinecap="round"/>
+                <line x1="100" y1="100" x2="100" y2="180" stroke="#333" strokeWidth="6" strokeDasharray="6,6" strokeLinecap="round"/>
+                
+                <circle cx="100" cy="100" r="30" fill="#111" stroke={cOk?"#10b981":"#444"} strokeWidth="4" />
+                <circle cx="100" cy="30" r="18" fill="#e5e5e5" stroke={h1==='1'?"#10b981":"none"} strokeWidth="4" />
+                <circle cx="35" cy="145" r="18" fill="#e5e5e5" stroke={h2==='1'?"#10b981":"none"} strokeWidth="4" />
+                <circle cx="165" cy="145" r="18" fill="#e5e5e5" stroke={h3==='1'?"#10b981":"none"} strokeWidth="4" />
+                <circle cx="100" cy="180" r="12" fill="#aaa" stroke={h4==='1'?"#10b981":"none"} strokeWidth="4" />
+             </svg>
+          </div>
+
+          {/* Painel de Inputs de Massa */}
+          <div className="flex-1 bg-neutral-900 border border-neutral-700 p-6 rounded-3xl flex flex-col justify-center gap-4 shadow-xl">
+             <p className="text-neutral-500 text-xs uppercase font-black tracking-widest text-center border-b border-neutral-800 pb-3 mb-2">Painel de Identificação (CH₄)</p>
+             
+             {[
+               { l: 'Carbono Central (C):', v: c, set: setC },
+               { l: 'Hidrogénio Topo (H):', v: h1, set: setH1 },
+               { l: 'Hidrogénio Esq. (H):', v: h2, set: setH2 },
+               { l: 'Hidrogénio Dir. (H):', v: h3, set: setH3 },
+               { l: 'Hidrogénio Fundo (H):', v: h4, set: setH4 }
+             ].map((row, i) => (
+                <div key={i} className="flex justify-between items-center bg-black p-2 rounded-xl border border-neutral-800">
+                  <label className="text-neutral-300 text-sm font-bold ml-2">{row.l}</label> 
+                  <input type="text" value={row.v} onChange={e=>row.set(e.target.value)} className="w-16 bg-neutral-800 focus:bg-neutral-700 border-none text-center text-emerald-400 font-black text-xl py-2 rounded-lg focus:outline-none transition-colors shadow-inner"/>
+                </div>
+             ))}
+          </div>
+        </div>
+
+        {/* Desafio Matemático */}
+        <div className={`w-full max-w-4xl transition-all duration-700 mt-8 ${isMolOk ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+          <div className="bg-emerald-950/20 border-l-4 border-emerald-500 p-6 rounded-r-2xl flex flex-col md:flex-row justify-between items-center gap-6">
+            <p className="text-neutral-300 text-sm md:text-base flex-1">
+              "Para realizar o bypass e ligar os motores, é exigida a injeção exata de <strong className="text-amber-400 text-lg mx-1">3,01 × 10²³ moléculas</strong> deste gás. Introduza a massa correspondente que o sistema deve extrair."
+            </p>
+            <div className="flex items-center bg-black p-2 rounded-xl border border-neutral-700">
+              <input type="text" value={ans} onChange={(e)=>setAns(e.target.value)} placeholder="0.0" className="w-24 bg-transparent text-emerald-400 text-center text-3xl font-mono font-black focus:outline-none placeholder-neutral-800" />
+              <span className="text-neutral-500 font-bold px-3">g</span>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={onComplete} disabled={!isFinalOk} 
+          className={`mt-10 w-full max-w-sm py-5 rounded-full font-black uppercase tracking-widest transition-all duration-500 ${isFinalOk ? 'bg-emerald-600 border-2 border-emerald-400 text-white shadow-[0_0_30px_rgba(16,185,129,0.5)] scale-105' : 'bg-black border-2 border-neutral-800 text-neutral-600 cursor-not-allowed'}`}
+        >
+          Acionar Motores Fósseis
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 14: Polímero Desmontado (Animação de Voo Coordenada)
+// ============================================================================
+function Module14({ onComplete }) {
+  const [atoms, setAtoms] = useState([
+    { id: 'p', t: 'P', c: 'fill-orange-500 stroke-orange-300', m: 31, x: 20, y: 20, tx: 100, ty: 100, ok: false },
+    { id: 'o1', t: 'O', c: 'fill-red-600 stroke-red-400', m: 16, x: 180, y: 30, tx: 100, ty: 50, ok: false },
+    { id: 'o2', t: 'O', c: 'fill-red-600 stroke-red-400', m: 16, x: 30, y: 150, tx: 50, ty: 120, ok: false },
+    { id: 'o3', t: 'O', c: 'fill-red-600 stroke-red-400', m: 16, x: 170, y: 160, tx: 150, ty: 120, ok: false },
+    { id: 'o4', t: 'O', c: 'fill-red-600 stroke-red-400', m: 16, x: 100, y: 20, tx: 100, ty: 150, ok: false },
+    { id: 'h1', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 10, y: 80, tx: 50, ty: 160, ok: false },
+    { id: 'h2', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 190, y: 90, tx: 150, ty: 160, ok: false },
+    { id: 'h3', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 150, y: 10, tx: 100, ty: 190, ok: false },
+  ]);
+
+  const [activeAtom, setActiveAtom] = useState(null);
+  const [inputVal, setInputVal] = useState('');
+  const [mantissa, setMantissa] = useState('');
+  const [expoente, setExpoente] = useState('');
+
+  const isAssembled = atoms.every(a => a.ok);
+  const isCorrect = checkSciNotation(mantissa, expoente, 4 * 6.022e23);
+
+  const handleInput = () => {
+    if (!activeAtom) return;
+    const atom = atoms.find(a => a.id === activeAtom);
+    if (parseInt(inputVal) === atom.m) {
+      setAtoms(atoms.map(a => a.id === activeAtom ? { ...a, x: a.tx, y: a.ty, ok: true } : a));
+      setActiveAtom(null);
+      setInputVal('');
+    }
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={14} title="Reconstrução de Polímeros" icon={<Icons.Hexagon />} instruction="O Ácido Fosfórico (H₃PO₄) no reator está desassociado. Recupere as ligações clicando nos átomos desgarrados e identificando as suas massas na consola para que regressem ao núcleo." />
+      
+      <div className="flex-1 flex flex-col items-center mt-2">
+        
+        {/* Caixa 3D de Montagem */}
+        <div className="w-full max-w-2xl h-[350px] bg-[#030303] border-[6px] border-neutral-800 rounded-3xl relative overflow-hidden mb-8 shadow-[inset_0_0_80px_rgba(0,0,0,1)]">
+          <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-2xl">
+            {/* Guias Falsas de Montagem */}
+            <g stroke="#222" strokeWidth="4" strokeLinecap="round">
+              <line x1="100" y1="100" x2="100" y2="50" />
+              <line x1="100" y1="100" x2="50" y2="120" />
+              <line x1="100" y1="100" x2="150" y2="120" />
+              <line x1="100" y1="100" x2="100" y2="150" />
+              <line x1="50" y1="120" x2="50" y2="160" />
+              <line x1="150" y1="120" x2="150" y2="160" />
+              <line x1="100" y1="150" x2="100" y2="190" />
+            </g>
+            <g fill="none" stroke="#222" strokeWidth="2" strokeDasharray="2,4">
+              <circle cx="100" cy="100" r="16" />
+              <circle cx="100" cy="50" r="14" />
+              <circle cx="50" cy="120" r="14" />
+              <circle cx="150" cy="120" r="14" />
+              <circle cx="100" cy="150" r="14" />
+              <circle cx="50" cy="160" r="10" />
+              <circle cx="150" cy="160" r="10" />
+              <circle cx="100" cy="190" r="10" />
+            </g>
+
+            {/* Átomos Desenhados (com animação CSS de movimento ao acertar) */}
+            {atoms.map(a => (
+              <circle 
+                key={a.id} cx={a.x} cy={a.y} r={a.t === 'P' ? 16 : a.t === 'O' ? 14 : 10} 
+                className={`${a.c} cursor-pointer transition-all duration-1000 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${a.ok ? 'drop-shadow-[0_0_5px_rgba(255,255,255,0.5)]' : 'hover:scale-110 origin-center drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]'}`}
+                strokeWidth={activeAtom === a.id ? "4" : "2"}
+                stroke={activeAtom === a.id ? "#10b981" : undefined}
+                onClick={() => !a.ok && setActiveAtom(a.id)}
+              />
+            ))}
+          </svg>
+          
+          {/* Modal de Interação Atómica */}
+          {activeAtom && (
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-black/90 backdrop-blur border border-emerald-600 p-6 rounded-2xl flex flex-col items-center gap-4 animate-in zoom-in shadow-[0_0_30px_rgba(16,185,129,0.3)]">
+              <span className="text-emerald-400 font-bold text-xs uppercase tracking-widest text-center">Protocolo de Recuperação</span>
+              <div className="flex gap-2">
+                <input type="number" autoFocus value={inputVal} onChange={e=>setInputVal(e.target.value)} onKeyDown={e=>e.key==='Enter' && handleInput()} placeholder="Massa" className="w-24 text-center text-white text-2xl font-black bg-neutral-900 border-2 border-neutral-700 focus:border-emerald-500 rounded-lg py-2 focus:outline-none" />
+                <button onClick={handleInput} className="bg-emerald-600 hover:bg-emerald-500 text-white px-5 font-black text-xl rounded-lg transition-colors">✓</button>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Pergunta de Deduzão Lógica */}
+        <div className={`w-full max-w-3xl transition-all duration-700 ${isAssembled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+          <div className="bg-neutral-900 border border-neutral-700 p-8 rounded-3xl flex flex-col md:flex-row items-center gap-8 shadow-2xl">
+            <p className="text-white text-sm md:text-base flex-1">
+              Estrutura H₃PO₄ estabilizada. Quantos átomos absolutos <strong className="text-red-400 text-lg">DE OXIGÉNIO (O)</strong> estão presentes se contivermos exatamente <strong className="text-amber-400">1 mol desta substância inteira</strong> no reator?
+            </p>
+            <div className="flex items-center gap-2 bg-black p-3 rounded-xl border border-neutral-800">
+              <input type="text" value={mantissa} onChange={e=>setMantissa(e.target.value)} placeholder="X.XX" className="w-24 bg-transparent border-b-2 border-neutral-700 focus:border-emerald-500 text-emerald-400 text-center py-1 text-2xl font-bold rounded-none focus:outline-none transition-colors" />
+              <span className="text-xl text-neutral-600 font-black">×10</span>
+              <div className="flex flex-col -mt-10">
+                <input type="number" value={expoente} onChange={e=>setExpoente(e.target.value)} placeholder="YY" className="w-16 bg-transparent border-b-2 border-neutral-700 focus:border-emerald-500 text-emerald-400 text-center py-1 text-lg font-bold rounded-none focus:outline-none transition-colors" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={onComplete} disabled={!isCorrect} 
+          className={`mt-10 px-16 py-5 rounded-full font-black uppercase tracking-widest transition-all duration-300 ${isCorrect ? 'bg-emerald-600 border border-emerald-400 text-white shadow-[0_0_40px_rgba(16,185,129,0.5)] scale-105 hover:bg-emerald-500' : 'bg-black border border-neutral-800 text-neutral-600 cursor-not-allowed'}`}
+        >
+          Validar Análise Proporcional
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// MÓDULO 15: O Cofre Orgânico (Desafio de Criptografia Molecular Final)
+// ============================================================================
+function Module15({ onComplete }) {
+  const [atoms, setAtoms] = useState([
+    { id: 'c1', t: 'C', c: 'fill-stone-800 stroke-stone-600', m: 12, x: 50, y: 100, ok: false },
+    { id: 'c2', t: 'C', c: 'fill-stone-800 stroke-stone-600', m: 12, x: 100, y: 100, ok: false },
+    { id: 'o', t: 'O', c: 'fill-red-600 stroke-red-400', m: 16, x: 150, y: 100, ok: false },
+    { id: 'h1', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 50, y: 50, ok: false },
+    { id: 'h2', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 50, y: 150, ok: false },
+    { id: 'h3', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 10, y: 100, ok: false },
+    { id: 'h4', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 100, y: 50, ok: false },
+    { id: 'h5', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 100, y: 150, ok: false },
+    { id: 'h6', t: 'H', c: 'fill-neutral-200 stroke-white', m: 1, x: 180, y: 100, ok: false }
+  ]);
+  
+  const [activeAtom, setActiveAtom] = useState(null);
+  const [ans, setAns] = useState('');
+  
+  const isFilled = atoms.every(a => a.ok);
+  const isFinalOk = ans === '3'; // 138 / 46 = 3
+
+  const handleInput = (val) => {
+    if (!activeAtom) return;
+    const atom = atoms.find(a => a.id === activeAtom);
+    if (parseInt(val) === atom.m) setAtoms(atoms.map(a => a.id === activeAtom ? { ...a, ok: true } : a));
+    setActiveAtom(null);
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      <ModuleHeader phase={15} title="O Cofre Orgânico Final" icon={<Icons.Shield />} instruction="Esta é a barreira final de segurança primária. Estrutura alvo: Etanol (C₂H₆O). Descodifique cada secção da molécula rapidamente introduzindo a massa atómica. Depois resolva a divisão de purga." />
+      
+      <div className="flex-1 flex flex-col items-center mt-2">
+        
+        {/* Visualização Molecular Master */}
+        <div className="w-full max-w-3xl h-[300px] md:h-[400px] bg-gradient-to-tr from-neutral-900 to-black border-[8px] border-neutral-800 rounded-[40px] relative overflow-hidden mb-8 shadow-2xl flex items-center justify-center perspective-1000">
+          <svg viewBox="0 0 200 200" className={`w-full h-full transition-transform duration-[2000ms] ease-in-out drop-shadow-2xl ${isFilled ? 'rotate-[360deg] scale-105' : ''}`}>
+             {/* Ligações Orgânicas */}
+             <g stroke="#444" strokeWidth="8" strokeLinecap="round">
+               <line x1="50" y1="100" x2="100" y2="100" />
+               <line x1="100" y1="100" x2="150" y2="100" />
+               <line x1="50" y1="100" x2="50" y2="50" />
+               <line x1="50" y1="100" x2="50" y2="150" />
+               <line x1="50" y1="100" x2="10" y2="100" />
+               <line x1="100" y1="100" x2="100" y2="50" />
+               <line x1="100" y1="100" x2="100" y2="150" />
+               <line x1="150" y1="100" x2="180" y2="100" />
+             </g>
+             
+             {/* Renderização dos Átomos */}
+             {atoms.map(a => (
+               <circle 
+                 key={a.id} cx={a.x} cy={a.y} r={a.t === 'H' ? 12 : 22} 
+                 className={`${a.c} cursor-pointer transition-all duration-500 stroke-4 ${a.ok ? 'filter drop-shadow-[0_0_15px_rgba(16,185,129,0.8)] fill-emerald-500 stroke-emerald-300' : 'hover:stroke-white stroke-neutral-600 opacity-80 hover:opacity-100 hover:scale-110 origin-center'}`}
+                 onClick={() => !a.ok && setActiveAtom(a.id)}
+               />
+             ))}
+          </svg>
+
+          {/* HUD de Decodificação Rápida */}
+          {activeAtom && (
+            <div className="absolute bg-black/90 backdrop-blur-md inset-0 flex flex-col items-center justify-center animate-in fade-in z-20">
+              <span className="text-emerald-400 font-black text-2xl mb-6 uppercase tracking-widest border-b-2 border-emerald-900 pb-2">Identificação Atómica Rápida</span>
+              <div className="flex gap-6">
+                <button onClick={() => handleInput(1)} className="w-24 h-24 bg-white text-black font-black text-4xl rounded-2xl hover:scale-110 transition-transform shadow-[0_10px_20px_rgba(255,255,255,0.2)]">1</button>
+                <button onClick={() => handleInput(12)} className="w-24 h-24 bg-stone-800 border-4 border-stone-600 text-white font-black text-4xl rounded-2xl hover:scale-110 transition-transform shadow-[0_10px_20px_rgba(0,0,0,0.5)]">12</button>
+                <button onClick={() => handleInput(16)} className="w-24 h-24 bg-red-600 border-4 border-red-500 text-white font-black text-4xl rounded-2xl hover:scale-110 transition-transform shadow-[0_10px_20px_rgba(220,38,38,0.3)]">16</button>
+              </div>
+              <span className="text-neutral-500 text-xs mt-8">Clique na opção correta que representa a massa molar g/mol.</span>
+            </div>
+          )}
+        </div>
+
+        {/* Última Porta (Purgador) */}
+        <div className={`w-full max-w-3xl transition-all duration-1000 ${isFilled ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
+          <div className="bg-emerald-950/20 border-2 border-emerald-600 p-8 rounded-3xl text-center shadow-[0_0_50px_rgba(16,185,129,0.2)] relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-600 to-transparent"></div>
+            <p className="text-emerald-400 font-black text-xs uppercase tracking-widest mb-1">Criptografia Orgânica Concluída</p>
+            <p className="text-white text-xl font-bold mb-6">Massa Molar do Etanol Registada: <span className="bg-black px-3 py-1 rounded text-emerald-400 border border-emerald-900 font-mono">46 g/mol</span></p>
+            
+            <div className="bg-black/50 p-6 rounded-2xl border border-neutral-800 flex flex-col md:flex-row items-center gap-6 text-left">
+              <p className="text-neutral-300 text-sm md:text-base flex-1">
+                O reator de emergência exige exatamente <strong className="text-amber-400 text-lg">138 gramas</strong> desse solvente orgânico para purgar a câmara e destravar as portas. O medidor de injeção primário só aceita o input em MOLS. Efectue a conversão final:
+              </p>
+              <div className="flex flex-col items-center gap-2">
+                 <input type="text" value={ans} onChange={(e)=>setAns(e.target.value)} placeholder="0" className="w-24 bg-neutral-900 border-b-4 border-emerald-600 text-emerald-400 text-center py-3 text-4xl font-black font-mono rounded focus:outline-none focus:bg-black transition-colors" />
+                 <span className="text-neutral-500 font-bold uppercase text-xs tracking-widest">Mols</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={onComplete} disabled={!isFinalOk} 
+          className={`mt-12 px-12 md:px-24 py-6 rounded-full font-black text-xl uppercase tracking-widest transition-all duration-700 relative overflow-hidden group ${isFinalOk ? 'bg-emerald-600 border-2 border-emerald-400 text-white shadow-[0_0_60px_rgba(16,185,129,0.8)] scale-105' : 'bg-black border border-neutral-800 text-neutral-700 cursor-not-allowed'}`}
+        >
+          {isFinalOk && <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:animate-[shimmer_1s_infinite]"></div>}
+          <span className="relative">Purgar Sistema e Escapar</span>
+        </button>
+      </div>
+    </div>
+  );
+}
