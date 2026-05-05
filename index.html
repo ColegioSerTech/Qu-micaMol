@@ -846,54 +846,165 @@
             );
         }
 
-        function Module11({ onComplete }) {
-            const [n1, setN1] = useState(''); const [n2, setN2] = useState(''); const [o, setO] = useState('');
-            const [ans, setAns] = useState(''); 
-            const [activeAtom, setActiveAtom] = useState(null); 
+     function Module11({ onComplete }) {
+            // Definição da molécula 3D: 2,3-dimetilbutano (C6H14)
+            const atoms3D = useRef([
+                { id: 'c1', t: 'C', m: 12, x: -60, y: -20, z: 0 },
+                { id: 'c2', t: 'C', m: 12, x: -20, y: 10, z: 0 },
+                { id: 'c3', t: 'C', m: 12, x: 20, y: 10, z: 0 },
+                { id: 'c4', t: 'C', m: 12, x: 60, y: -20, z: 0 },
+                { id: 'c5', t: 'C', m: 12, x: -20, y: 50, z: 30 },
+                { id: 'c6', t: 'C', m: 12, x: 20, y: 50, z: -30 },
+                { id: 'h1', t: 'H', m: 1, x: -85, y: -10, z: 15 },
+                { id: 'h2', t: 'H', m: 1, x: -85, y: -10, z: -15 },
+                { id: 'h3', t: 'H', m: 1, x: -50, y: -45, z: 0 },
+                { id: 'h4', t: 'H', m: 1, x: -20, y: -15, z: -25 },
+                { id: 'h5', t: 'H', m: 1, x: 20, y: -15, z: 25 },
+                { id: 'h6', t: 'H', m: 1, x: 85, y: -10, z: 15 },
+                { id: 'h7', t: 'H', m: 1, x: 85, y: -10, z: -15 },
+                { id: 'h8', t: 'H', m: 1, x: 50, y: -45, z: 0 },
+                { id: 'h9', t: 'H', m: 1, x: -45, y: 65, z: 30 },
+                { id: 'h10', t: 'H', m: 1, x: 5, y: 65, z: 30 },
+                { id: 'h11', t: 'H', m: 1, x: -20, y: 40, z: 60 },
+                { id: 'h12', t: 'H', m: 1, x: 45, y: 65, z: -30 },
+                { id: 'h13', t: 'H', m: 1, x: -5, y: 65, z: -30 },
+                { id: 'h14', t: 'H', m: 1, x: 20, y: 40, z: -60 },
+            ]).current;
 
-            const n1Ok = n1 === '14'; const n2Ok = n2 === '14'; const oOk = o === '16';
-            const isMolOk = n1Ok && n2Ok && oOk;
-            const isFinalOk = ans === '110';
+            const bonds = useRef([
+                ['c1','c2'], ['c2','c3'], ['c3','c4'], ['c2','c5'], ['c3','c6'],
+                ['c1','h1'], ['c1','h2'], ['c1','h3'],
+                ['c2','h4'],
+                ['c3','h5'],
+                ['c4','h6'], ['c4','h7'], ['c4','h8'],
+                ['c5','h9'], ['c5','h10'], ['c5','h11'],
+                ['c6','h12'], ['c6','h13'], ['c6','h14']
+            ]).current;
+
+            // Removido o useState de ângulo e o loop de animação.
+            // Definido um ângulo fixo de 0.8 radianos para uma vista 3D inclinada e clara.
+            const angle = 0.8; 
+            const [scanned, setScanned] = useState([]);
+
+            const toggleScan = (id) => {
+                if (scanned.includes(id)) {
+                    setScanned(scanned.filter(item => item !== id));
+                } else {
+                    setScanned([...scanned, id]);
+                }
+            };
+
+            const currentMass = scanned.reduce((sum, id) => sum + atoms3D.find(a => a.id === id).m, 0);
+            const targetMass = 86; // 6*12 + 14*1
+            const isComplete = currentMass === targetMass && scanned.length === atoms3D.length;
+
+            // Motor de Projeção 3D para 2D (Agora Estático)
+            const projectedAtoms = atoms3D.map(a => {
+                const cosY = Math.cos(angle);
+                const sinY = Math.sin(angle);
+                
+                // Rotação Y
+                let x = a.x * cosY - a.z * sinY;
+                let z = a.x * sinY + a.z * cosY;
+                let y = a.y;
+
+                // Rotação X estática (Tilt para ver de cima)
+                const tilt = 0.3;
+                const cosX = Math.cos(tilt);
+                const sinX = Math.sin(tilt);
+                const finalY = y * cosX - z * sinX;
+                const finalZ = y * sinX + z * cosX;
+
+                // Perspectiva
+                const perspective = 300;
+                const scale = perspective / (perspective + finalZ);
+
+                return { ...a, px: x * scale + 150, py: finalY * scale + 100, pz: finalZ, scale };
+            });
+
+            const projMap = {};
+            projectedAtoms.forEach(a => projMap[a.id] = a);
 
             return (
                 <div className="h-full flex flex-col">
-                    <ModuleHeader phase={11} title="Reconstrução de Óxido Nitroso" icon={<Icons.Cube />} instruction="Uma molécula essencial perdeu os metadados. Clique nos nódulos e use a Tabela Periódica para restaurar as massas." />
-                    <div className="flex-1 flex flex-col items-center mt-2">
-                        <div className="w-full max-w-2xl h-64 bg-gradient-to-b from-neutral-900 to-black border-2 border-neutral-800 rounded-3xl flex items-center justify-center relative mb-8 shadow-inner" style={{perspective: '1000px'}}>
-                            <svg viewBox="0 0 300 150" className="w-full h-full drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)] overflow-visible">
-                                <line x1="75" y1="75" x2="150" y2="75" stroke="#333" strokeWidth="12" strokeLinecap="round" />
-                                <line x1="150" y1="75" x2="225" y2="75" stroke="#333" strokeWidth="12" strokeLinecap="round" />
-                                <circle cx="75" cy="110" r="15" fill="rgba(0,0,0,0.5)" filter="blur(8px)"/>
-                                <circle cx="150" cy="110" r="15" fill="rgba(0,0,0,0.5)" filter="blur(8px)"/>
-                                <circle cx="225" cy="110" r="15" fill="rgba(0,0,0,0.5)" filter="blur(8px)"/>
-                                <circle cx="75" cy="75" r="28" onClick={() => setActiveAtom('n1')} className={`cursor-pointer transition-all duration-500 stroke-4 ${n1Ok ? 'fill-emerald-500 stroke-emerald-300 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'fill-blue-600 stroke-blue-400 hover:fill-blue-500'}`} />
-                                <circle cx="150" cy="75" r="28" onClick={() => setActiveAtom('n2')} className={`cursor-pointer transition-all duration-500 stroke-4 ${n2Ok ? 'fill-emerald-500 stroke-emerald-300 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'fill-blue-600 stroke-blue-400 hover:fill-blue-500'}`} />
-                                <circle cx="225" cy="75" r="28" onClick={() => setActiveAtom('o')} className={`cursor-pointer transition-all duration-500 stroke-4 ${oOk ? 'fill-emerald-500 stroke-emerald-300 filter drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'fill-red-600 stroke-red-400 hover:fill-red-500'}`} />
-                                <circle cx="65" cy="65" r="8" fill="#fff" opacity="0.3" pointerEvents="none"/>
-                                <circle cx="140" cy="65" r="8" fill="#fff" opacity="0.3" pointerEvents="none"/>
-                                <circle cx="215" cy="65" r="8" fill="#fff" opacity="0.3" pointerEvents="none"/>
+                    <ModuleHeader phase={11} title="Holograma de Massa Molar" icon={<Icons.Cube />} instruction="A matriz molecular do 2,3-dimetilbutano (C₆H₁₄) foi carregada. Clique em todos os átomos no modelo 3D para rastreá-los e somar a Massa Molar total da molécula." />
+                    
+                    <div className="flex-1 flex flex-col lg:flex-row gap-8 items-center justify-center mt-2">
+                        {/* Visor 3D Estático */}
+                        <div className="w-full max-w-xl h-80 bg-[#050505] border-[4px] border-neutral-800 rounded-3xl relative overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] flex items-center justify-center">
+                            <div className="absolute top-4 left-4 z-10">
+                                <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest block mb-1">Status do Escâner</span>
+                                <span className={`text-sm font-black px-2 py-1 rounded uppercase tracking-widest ${isComplete ? 'bg-emerald-900 text-emerald-400' : 'bg-neutral-900 text-amber-500'}`}>
+                                    {isComplete ? '100% Mapeado' : 'Rastreando...'}
+                                </span>
+                            </div>
+
+                            <svg viewBox="0 0 300 200" className="w-full h-full drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)]">
+                                {/* Ligações (Bonds) */}
+                                {bonds.map((bond, idx) => {
+                                    const a1 = projMap[bond[0]];
+                                    const a2 = projMap[bond[1]];
+                                    const isScanned = scanned.includes(a1.id) && scanned.includes(a2.id);
+                                    return (
+                                        <line key={idx} x1={a1.px} y1={a1.py} x2={a2.px} y2={a2.py} 
+                                            stroke={isScanned ? "#10b981" : "#3f3f46"} 
+                                            strokeWidth={Math.max(1, ((a1.scale + a2.scale) / 2) * 4)} 
+                                            className="transition-colors duration-500"
+                                        />
+                                    );
+                                })}
+
+                                {/* Átomos renderizados por profundidade (Painter's Algorithm) */}
+                                {[...projectedAtoms].sort((a,b) => b.pz - a.pz).map(a => {
+                                    const isScanned = scanned.includes(a.id);
+                                    const radius = (a.t === 'C' ? 14 : 7) * a.scale;
+                                    
+                                    // Cores baseadas no tipo de átomo e status de scan
+                                    let fill = a.t === 'C' ? "#27272a" : "#e4e4e7";
+                                    let stroke = a.t === 'C' ? "#52525b" : "#ffffff";
+                                    if (isScanned) { fill = "#047857"; stroke = "#34d399"; } // Esmeralda se escaneado
+
+                                    return (
+                                        <circle key={a.id} cx={a.px} cy={a.py} r={Math.max(2, radius)} 
+                                            fill={fill} stroke={stroke} strokeWidth={isScanned ? 3 : 1.5}
+                                            className="cursor-pointer transition-all duration-300 hover:brightness-150 drop-shadow-md"
+                                            onClick={() => toggleScan(a.id)}
+                                        />
+                                    );
+                                })}
                             </svg>
-                            {activeAtom && !isMolOk && (
-                                <div className="absolute bottom-4 bg-black/90 backdrop-blur border border-neutral-600 p-5 rounded-xl text-center animate-in zoom-in shadow-2xl z-20">
-                                    <span className="block text-amber-500 font-black mb-3 tracking-widest uppercase">{activeAtom === 'o' ? 'Elemento Z (Valência 2)' : 'Elemento Y (Valência 3)'}</span>
-                                    <div className="flex items-center gap-3">
-                                        <label className="text-neutral-400 text-xs font-bold uppercase">Massa Molar Atómica:</label>
-                                        <input type="text" autoFocus value={activeAtom === 'n1' ? n1 : activeAtom === 'n2' ? n2 : o} onChange={(e) => { const val = e.target.value; if(activeAtom === 'n1') setN1(val); if(activeAtom === 'n2') setN2(val); if(activeAtom === 'o') setO(val); }} className="w-16 bg-neutral-900 border-2 border-neutral-600 focus:border-amber-400 focus:outline-none text-white font-mono text-xl text-center rounded py-1"/>
-                                    </div>
-                                </div>
-                            )}
+
+                            {/* Efeito Overlay de Scan Concluído */}
+                            {isComplete && <div className="absolute inset-0 bg-emerald-500/10 pointer-events-none mix-blend-overlay animate-pulse"></div>}
                         </div>
-                        <div className={`w-full max-w-2xl transition-all duration-700 ${isMolOk ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10 pointer-events-none'}`}>
-                            <div className="bg-emerald-950/30 border-2 border-emerald-900 p-8 rounded-3xl text-center shadow-[0_0_30px_rgba(16,185,129,0.15)]">
-                                <p className="text-emerald-400 font-black text-xl mb-4 uppercase tracking-widest">Estrutura Molecular Aceita</p>
-                                <p className="text-neutral-300 text-lg mb-6">Informe qual será a massa final (em gramas) caso sejam injetados <strong className="text-amber-400 bg-amber-950/40 px-2 rounded">2,5 mols</strong> desta molécula.</p>
-                                <div className="flex justify-center items-center gap-4">
-                                    <input type="text" value={ans} onChange={(e)=>setAns(e.target.value)} placeholder="000" className="w-32 bg-black border-b-4 border-emerald-700 text-emerald-400 text-center py-3 text-4xl font-black font-mono focus:outline-none focus:border-emerald-400 transition-colors" />
-                                    <span className="text-neutral-500 font-bold text-xl">g</span>
+
+                        {/* Painel de Resultados */}
+                        <div className="w-full max-w-md bg-black/60 border border-neutral-800 p-8 rounded-3xl shadow-2xl flex flex-col justify-center">
+                            <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest text-center mb-6 border-b border-neutral-800 pb-4">Consola de Somatório</p>
+                            
+                            <div className="space-y-4 mb-8">
+                                <div className="flex justify-between items-center bg-neutral-900 p-3 rounded-xl border border-neutral-800">
+                                    <span className="text-neutral-400 font-bold text-sm">Carbonos (12 u)</span>
+                                    <span className="text-white font-mono font-black">{scanned.filter(id => atoms3D.find(a => a.id === id).t === 'C').length} / 6</span>
+                                </div>
+                                <div className="flex justify-between items-center bg-neutral-900 p-3 rounded-xl border border-neutral-800">
+                                    <span className="text-neutral-400 font-bold text-sm">Hidrogênios (1 u)</span>
+                                    <span className="text-white font-mono font-black">{scanned.filter(id => atoms3D.find(a => a.id === id).t === 'H').length} / 14</span>
                                 </div>
                             </div>
+
+                            <div className="bg-black py-6 rounded-2xl border-2 border-neutral-800 flex flex-col items-center justify-center shadow-inner relative overflow-hidden transition-colors duration-500" style={{ borderColor: isComplete ? '#10b981' : '' }}>
+                                <span className="text-neutral-500 uppercase font-black tracking-widest text-[10px] mb-2">Massa Molar Cumulativa</span>
+                                <div className="flex items-end gap-2">
+                                    <span className={`text-6xl font-mono font-black transition-colors duration-300 ${isComplete ? 'text-emerald-400 drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]' : 'text-white'}`}>{currentMass}</span>
+                                    <span className="text-neutral-600 font-bold text-xl mb-1">/ 86 g/mol</span>
+                                </div>
+                            </div>
+
+                            <button onClick={onComplete} disabled={!isComplete} className={`mt-8 w-full py-5 rounded-xl font-black uppercase tracking-widest transition-all duration-500 ${isComplete ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-[0_0_30px_rgba(16,185,129,0.5)] scale-105' : 'bg-neutral-900 border border-neutral-800 text-neutral-600 cursor-not-allowed'}`}>
+                                Validar Carga
+                            </button>
                         </div>
-                        <button onClick={onComplete} disabled={!isFinalOk} className={`mt-10 px-16 py-5 rounded-full font-black uppercase tracking-widest transition-all duration-500 ${isFinalOk ? 'bg-emerald-600 border border-emerald-400 text-white shadow-[0_0_40px_rgba(16,185,129,0.5)] scale-105' : 'bg-black border border-neutral-800 text-neutral-600 cursor-not-allowed'}`}>Gravar Modificações</button>
                     </div>
                 </div>
             );
