@@ -744,6 +744,7 @@
             ]);
             const [activeId, setActiveId] = useState(1);
             const [pumpAnim, setPumpAnim] = useState(false);
+            const doneRef = useRef(false); // <--- Correção adicionada aqui
 
             const handlePump = () => {
                 if (balloons.find(b => b.id === activeId).status !== 'pending') return;
@@ -766,8 +767,12 @@
                 }));
             };
 
+            // Efeito corrigido para disparar a transição apenas UMA VEZ!
             useEffect(() => {
-                if (balloons.every(b => b.status === 'locked')) setTimeout(onComplete, 1500);
+                if (balloons.every(b => b.status === 'locked') && !doneRef.current) {
+                    doneRef.current = true; 
+                    setTimeout(onComplete, 1500);
+                }
             }, [balloons, onComplete]);
 
             return (
