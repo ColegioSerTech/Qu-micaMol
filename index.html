@@ -880,19 +880,10 @@ function Module11({ onComplete }) {
                 ['c6','h12'], ['c6','h13'], ['c6','h14']
             ]).current;
 
-            const [angle, setAngle] = useState(0);
+            // Removido o useState de ângulo e o loop de animação.
+            // Definido um ângulo fixo de 0.8 radianos para uma vista 3D inclinada e clara.
+            const angle = 0.8; 
             const [scanned, setScanned] = useState([]);
-            
-            // Loop de Animação 3D
-            useEffect(() => {
-                let req;
-                const animate = () => {
-                    setAngle(prev => prev + 0.005);
-                    req = requestAnimationFrame(animate);
-                };
-                req = requestAnimationFrame(animate);
-                return () => cancelAnimationFrame(req);
-            }, []);
 
             const toggleScan = (id) => {
                 if (scanned.includes(id)) {
@@ -906,12 +897,12 @@ function Module11({ onComplete }) {
             const targetMass = 86; // 6*12 + 14*1
             const isComplete = currentMass === targetMass && scanned.length === atoms3D.length;
 
-            // Motor de Projeção 3D para 2D
+            // Motor de Projeção 3D para 2D (Agora Estático)
             const projectedAtoms = atoms3D.map(a => {
                 const cosY = Math.cos(angle);
                 const sinY = Math.sin(angle);
                 
-                // Rotação Y (Giro automático)
+                // Rotação Y
                 let x = a.x * cosY - a.z * sinY;
                 let z = a.x * sinY + a.z * cosY;
                 let y = a.y;
@@ -935,10 +926,10 @@ function Module11({ onComplete }) {
 
             return (
                 <div className="h-full flex flex-col">
-                    <ModuleHeader phase={11} title="Holograma de Massa Molar" icon={<Icons.Cube />} instruction="A matriz molecular do 2,3-dimetilbutano (C₆H₁₄) foi carregada. Clique em todos os átomos no modelo 3D para rastreá-os e somar a Massa Molar total da molécula." />
+                    <ModuleHeader phase={11} title="Holograma de Massa Molar" icon={<Icons.Cube />} instruction="A matriz molecular do 2,3-dimetilbutano (C₆H₁₄) foi carregada. Clique em todos os átomos no modelo 3D para rastreá-los e somar a Massa Molar total da molécula." />
                     
                     <div className="flex-1 flex flex-col lg:flex-row gap-8 items-center justify-center mt-2">
-                        {/* Visor 3D */}
+                        {/* Visor 3D Estático */}
                         <div className="w-full max-w-xl h-80 bg-[#050505] border-[4px] border-neutral-800 rounded-3xl relative overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] flex items-center justify-center">
                             <div className="absolute top-4 left-4 z-10">
                                 <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-widest block mb-1">Status do Escâner</span>
