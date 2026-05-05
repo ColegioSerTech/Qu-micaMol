@@ -162,25 +162,25 @@
             return (
                 <div className="text-center space-y-8 animate-in zoom-in duration-700 h-full flex flex-col justify-center items-center">
                     <div className="relative">
-                        <div className="absolute inset-0 bg-red-600 rounded-full blur-[40px] opacity-30 animate-pulse"></div>
-                        <div className="relative bg-neutral-900 border-2 border-red-500/50 p-6 rounded-2xl">
+                        <div className="absolute inset-0 bg-emerald-600 rounded-full blur-[40px] opacity-30 animate-pulse"></div>
+                        <div className="relative bg-neutral-900 border-2 border-emerald-500/50 p-6 rounded-2xl text-emerald-500">
                             <Icons.Shield />
                         </div>
                     </div>
                     
-                    <h2 className="text-4xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-red-400 to-red-700 uppercase tracking-widest drop-shadow-sm">
-                        Colapso Iminente
+                    <h2 className="text-4xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-b from-emerald-400 to-emerald-700 uppercase tracking-widest drop-shadow-sm">
+                        Sistema Trancado
                     </h2>
                     
-                    <div className="text-neutral-300 text-lg md:text-xl max-w-3xl mx-auto space-y-4 text-left border-l-4 border-red-500 pl-6 bg-red-950/10 p-6 rounded-r-lg shadow-inner">
-                        <p>O sistema termodinâmico do <strong className="text-red-400">Reator Principal</strong> falhou devido a um erro de cálculo estequiométrico.</p>
-                        <p>Para estabilizar o núcleo, a equipa de contenção precisa recalibrar <strong className="text-emerald-400">15 Módulos Interativos</strong> consecutivamente.</p>
-                        <p className="text-amber-500 font-bold bg-amber-950/30 p-2 inline-block rounded">O nível de radiação será letal em exatamente 25 minutos.</p>
+                    <div className="text-neutral-300 text-lg md:text-xl max-w-3xl mx-auto space-y-4 text-left border-l-4 border-emerald-500 pl-6 bg-emerald-950/10 p-6 rounded-r-lg shadow-inner">
+                        <p>O sistema termodinâmico do <strong className="text-emerald-400">Reator Principal</strong> desativou por medida de segurança.</p>
+                        <p>Para religar o núcleo, a equipa de contenção precisa recalibrar <strong className="text-emerald-400">15 Módulos Interativos</strong> consecutivamente.</p>
+                        <p className="text-amber-500 font-bold bg-amber-950/30 p-2 inline-block rounded">O cronômetro avaliará a sua agilidade. Seja rápido e preciso.</p>
                     </div>
                     
                     <button 
                         onClick={onStart} 
-                        className="group relative mt-12 overflow-hidden rounded-full bg-red-600 px-12 py-5 font-black uppercase text-white tracking-widest shadow-[0_0_40px_rgba(220,38,38,0.5)] transition-all hover:scale-105 active:scale-95"
+                        className="group relative mt-12 overflow-hidden rounded-full bg-emerald-600 px-12 py-5 font-black uppercase text-white tracking-widest shadow-[0_0_40px_rgba(16,185,129,0.5)] transition-all hover:scale-105 active:scale-95"
                     >
                         <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full hover:animate-[shimmer_1.5s_infinite]"></div>
                         <span className="relative">Iniciar Recalibração do Núcleo</span>
@@ -189,14 +189,14 @@
             );
         }
 
-        function ScreenVictory({ timeLeft, penalties, onRestart }) {
+        function ScreenVictory({ timeElapsed, penalties, onRestart }) {
             let rank = 'C';
             let color = 'text-amber-500';
-            let message = "Sobreviveu, mas por pouco.";
+            let message = "Missão cumprida, mas a operação foi lenta.";
 
-            if (timeLeft > 15 * 60 && penalties === 0) { rank = 'S'; color = 'text-fuchsia-500'; message = "Genialidade Estequiométrica Pura!"; }
-            else if (timeLeft > 10 * 60 && penalties <= 1) { rank = 'A'; color = 'text-emerald-400'; message = "Excelente Trabalho de Equipa!"; }
-            else if (timeLeft > 5 * 60 && penalties <= 3) { rank = 'B'; color = 'text-blue-400'; message = "Sólido, mas com alguns percalços."; }
+            if (timeElapsed < 5 * 60 && penalties === 0) { rank = 'S'; color = 'text-fuchsia-500'; message = "Velocidade e Genialidade Estequiométrica Pura!"; }
+            else if (timeElapsed < 10 * 60 && penalties <= 1) { rank = 'A'; color = 'text-emerald-400'; message = "Excelente Trabalho de Equipa e Ótimo Tempo!"; }
+            else if (timeElapsed < 15 * 60 && penalties <= 3) { rank = 'B'; color = 'text-blue-400'; message = "Sólido, estabilizado num tempo aceitável."; }
 
             return (
                 <div className="text-center space-y-8 animate-in slide-in-from-bottom-10 duration-700 h-full flex flex-col justify-center items-center">
@@ -213,8 +213,8 @@
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl mt-8">
                         <div className="bg-neutral-900 border border-neutral-700 p-6 rounded-2xl flex flex-col items-center shadow-lg">
-                            <span className="text-neutral-500 uppercase font-bold tracking-widest text-xs mb-2">Tempo Restante</span>
-                            <span className="text-4xl font-black text-white font-mono">{formatTime(timeLeft)}</span>
+                            <span className="text-neutral-500 uppercase font-bold tracking-widest text-xs mb-2">Tempo Total</span>
+                            <span className="text-4xl font-black text-white font-mono">{formatTime(timeElapsed)}</span>
                         </div>
                         <div className="bg-neutral-900 border border-neutral-700 p-6 rounded-2xl flex flex-col items-center shadow-lg relative overflow-hidden">
                             <div className={`absolute inset-0 opacity-20 ${rank==='S'?'bg-fuchsia-500':rank==='A'?'bg-emerald-500':rank==='B'?'bg-blue-500':'bg-amber-500'}`}></div>
@@ -246,11 +246,7 @@
                         <h2 className="text-6xl md:text-8xl font-black text-red-600 uppercase tracking-widest drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
                             FALHA CRÍTICA
                         </h2>
-                        <h3 className="text-2xl text-red-400 font-bold tracking-widest uppercase">
-                            Nível de Radiação Letal Atingido.
-                        </h3>
                     </div>
-                    <p className="text-neutral-500 text-lg max-w-lg">O laboratório foi selado permanentemente. A simulação foi encerrada para proteger os sistemas externos.</p>
                     <button onClick={onRestart} className="mt-12 bg-red-900/50 border border-red-500 hover:bg-red-800 text-red-100 font-black py-4 px-10 rounded-lg uppercase tracking-widest transition-all">
                         Reiniciar Simulação
                     </button>
@@ -744,7 +740,7 @@
             ]);
             const [activeId, setActiveId] = useState(1);
             const [pumpAnim, setPumpAnim] = useState(false);
-            const doneRef = useRef(false); // <--- Correção adicionada aqui
+            const doneRef = useRef(false);
 
             const handlePump = () => {
                 if (balloons.find(b => b.id === activeId).status !== 'pending') return;
@@ -767,13 +763,12 @@
                 }));
             };
 
-            // Efeito corrigido para disparar a transição apenas UMA VEZ!
             useEffect(() => {
                 if (balloons.every(b => b.status === 'locked') && !doneRef.current) {
-                    doneRef.current = true; 
-                    setTimeout(onComplete, 1500);
+                    doneRef.current = true;
+                    setTimeout(() => onComplete(), 1500);
                 }
-            }, [balloons, onComplete]);
+            }, [balloons]); // Retirei o onComplete daqui para ele não ser engatilhado pelos ticks do relógio
 
             return (
                 <div className="h-full flex flex-col">
@@ -851,7 +846,7 @@
             );
         }
 
-     function Module11({ onComplete }) {
+        function Module11({ onComplete }) {
             // Definição da molécula 3D: 2,3-dimetilbutano (C6H14)
             const atoms3D = useRef([
                 { id: 'c1', t: 'C', m: 12, x: -60, y: -20, z: 0 },
@@ -886,8 +881,7 @@
                 ['c6','h12'], ['c6','h13'], ['c6','h14']
             ]).current;
 
-            // Removido o useState de ângulo e o loop de animação.
-            // Definido um ângulo fixo de 0.8 radianos para uma vista 3D inclinada e clara.
+            // Ângulo fixo de 0.8 radianos para uma vista 3D inclinada e clara.
             const angle = 0.8; 
             const [scanned, setScanned] = useState([]);
 
@@ -903,7 +897,7 @@
             const targetMass = 86; // 6*12 + 14*1
             const isComplete = currentMass === targetMass && scanned.length === atoms3D.length;
 
-            // Motor de Projeção 3D para 2D (Agora Estático)
+            // Motor de Projeção 3D para 2D (Estático)
             const projectedAtoms = atoms3D.map(a => {
                 const cosY = Math.cos(angle);
                 const sinY = Math.sin(angle);
@@ -967,7 +961,7 @@
                                     // Cores baseadas no tipo de átomo e status de scan
                                     let fill = a.t === 'C' ? "#27272a" : "#e4e4e7";
                                     let stroke = a.t === 'C' ? "#52525b" : "#ffffff";
-                                    if (isScanned) { fill = "#047857"; stroke = "#34d399"; } // Esmeralda se escaneado
+                                    if (isScanned) { fill = "#047857"; stroke = "#34d399"; }
 
                                     return (
                                         <circle key={a.id} cx={a.px} cy={a.py} r={Math.max(2, radius)} 
@@ -1303,25 +1297,19 @@
         function EscapeRoomApp() {
             // Fases: 'boot', 'intro', 1 até 15, 'victory', 'gameover'
             const [phase, setPhase] = useState('boot'); 
-            const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 Minutos
+            const [timeElapsed, setTimeElapsed] = useState(0); // Cronômetro Livre Crescente
             const [penalties, setPenalties] = useState(0);
 
             // Temporizador Global
             useEffect(() => {
                 let timer;
-                if (typeof phase === 'number' && timeLeft > 0) {
+                if (typeof phase === 'number') {
                     timer = setInterval(() => {
-                        setTimeLeft(prev => {
-                            if (prev <= 1) {
-                                setPhase('gameover');
-                                return 0;
-                            }
-                            return prev - 1;
-                        });
+                        setTimeElapsed(prev => prev + 1);
                     }, 1000);
                 }
                 return () => clearInterval(timer);
-            }, [phase, timeLeft]);
+            }, [phase]);
 
             const nextPhase = () => {
                 if (phase === 15) {
@@ -1333,7 +1321,7 @@
 
             const restart = () => {
                 setPhase('boot');
-                setTimeLeft(25 * 60);
+                setTimeElapsed(0);
                 setPenalties(0);
             };
 
@@ -1341,7 +1329,7 @@
                 switch(phase) {
                     case 'boot': return <ScreenBoot onComplete={() => setPhase('intro')} />;
                     case 'intro': return <ScreenIntro onStart={() => setPhase(1)} />;
-                    case 'victory': return <ScreenVictory timeLeft={timeLeft} penalties={penalties} onRestart={restart} />;
+                    case 'victory': return <ScreenVictory timeElapsed={timeElapsed} penalties={penalties} onRestart={restart} />;
                     case 'gameover': return <ScreenGameOver onRestart={restart} />;
                     case 1: return <Module1 onComplete={nextPhase} />;
                     case 2: return <Module2 onComplete={nextPhase} />;
@@ -1372,9 +1360,9 @@
                                 <span className="font-black text-emerald-500 tracking-widest uppercase hidden md:inline">Avogadro Reator</span>
                                 <span className="text-neutral-500 font-mono text-sm border-l border-neutral-700 pl-3 ml-1 hidden sm:inline">Setor {phase}/15</span>
                             </div>
-                            <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-mono font-black text-xl border transition-colors ${timeLeft < 300 ? 'bg-red-950/50 border-red-500 text-red-500 animate-pulse' : 'bg-neutral-900 border-neutral-700 text-emerald-400'}`}>
+                            <div className="flex items-center gap-2 px-4 py-2 rounded-full font-mono font-black text-xl border transition-colors bg-neutral-900 border-neutral-700 text-emerald-400">
                                 <Icons.Clock />
-                                {formatTime(timeLeft)}
+                                {formatTime(timeElapsed)}
                             </div>
                         </header>
                     )}
