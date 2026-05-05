@@ -174,7 +174,7 @@
                     
                     <div className="text-neutral-300 text-lg md:text-xl max-w-3xl mx-auto space-y-4 text-left border-l-4 border-red-500 pl-6 bg-red-950/10 p-6 rounded-r-lg shadow-inner">
                         <p>O sistema termodinâmico do <strong className="text-red-400">Reator Principal</strong> falhou devido a um erro de cálculo estequiométrico.</p>
-                        <p>Para estabilizar o núcleo, a equipa de contenção precisa recalibrar <strong className="text-emerald-400">15 Módulos Interativos</strong> consecutivamente.</p>
+                        <p>Para estabilizar o núcleo, a equipe de contenção precisa recalibrar <strong className="text-emerald-400">15 Módulos Interativos</strong> consecutivamente.</p>
                         <p className="text-amber-500 font-bold bg-amber-950/30 p-2 inline-block rounded">O nível de radiação será letal em exatamente 25 minutos.</p>
                     </div>
                     
@@ -195,7 +195,7 @@
             let message = "Sobreviveu, mas por pouco.";
 
             if (timeLeft > 15 * 60 && penalties === 0) { rank = 'S'; color = 'text-fuchsia-500'; message = "Genialidade Estequiométrica Pura!"; }
-            else if (timeLeft > 10 * 60 && penalties <= 1) { rank = 'A'; color = 'text-emerald-400'; message = "Excelente Trabalho de Equipa!"; }
+            else if (timeLeft > 10 * 60 && penalties <= 1) { rank = 'A'; color = 'text-emerald-400'; message = "Excelente Trabalho de Equipe!"; }
             else if (timeLeft > 5 * 60 && penalties <= 3) { rank = 'B'; color = 'text-blue-400'; message = "Sólido, mas com alguns percalços."; }
 
             return (
