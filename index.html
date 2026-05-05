@@ -848,6 +848,7 @@
 
         function Module11({ onComplete }) {
             // Definição da molécula 3D: 2,3-dimetilbutano (C6H14)
+            // Coordenadas espalhadas para garantir que nenhum átomo fique eclipsado na vista estática
             const atoms3D = useRef([
                 { id: 'c1', t: 'C', m: 12, x: -60, y: -20, z: 0 },
                 { id: 'c2', t: 'C', m: 12, x: -20, y: 10, z: 0 },
@@ -855,20 +856,32 @@
                 { id: 'c4', t: 'C', m: 12, x: 60, y: -20, z: 0 },
                 { id: 'c5', t: 'C', m: 12, x: -20, y: 50, z: 30 },
                 { id: 'c6', t: 'C', m: 12, x: 20, y: 50, z: -30 },
-                { id: 'h1', t: 'H', m: 1, x: -85, y: -10, z: 15 },
-                { id: 'h2', t: 'H', m: 1, x: -85, y: -10, z: -15 },
-                { id: 'h3', t: 'H', m: 1, x: -50, y: -45, z: 0 },
-                { id: 'h4', t: 'H', m: 1, x: -20, y: -15, z: -25 },
-                { id: 'h5', t: 'H', m: 1, x: 20, y: -15, z: 25 },
-                { id: 'h6', t: 'H', m: 1, x: 85, y: -10, z: 15 },
-                { id: 'h7', t: 'H', m: 1, x: 85, y: -10, z: -15 },
-                { id: 'h8', t: 'H', m: 1, x: 50, y: -45, z: 0 },
-                { id: 'h9', t: 'H', m: 1, x: -45, y: 65, z: 30 },
-                { id: 'h10', t: 'H', m: 1, x: 5, y: 65, z: 30 },
-                { id: 'h11', t: 'H', m: 1, x: -20, y: 40, z: 60 },
-                { id: 'h12', t: 'H', m: 1, x: 45, y: 65, z: -30 },
-                { id: 'h13', t: 'H', m: 1, x: -5, y: 65, z: -30 },
-                { id: 'h14', t: 'H', m: 1, x: 20, y: 40, z: -60 },
+                
+                // Hidrogênios do C1
+                { id: 'h1', t: 'H', m: 1, x: -85, y: -5, z: 20 },
+                { id: 'h2', t: 'H', m: 1, x: -80, y: -35, z: -15 },
+                { id: 'h3', t: 'H', m: 1, x: -50, y: -40, z: 25 },
+                
+                // Hidrogênio do C2
+                { id: 'h4', t: 'H', m: 1, x: -25, y: -10, z: -35 },
+                
+                // Hidrogênio do C3
+                { id: 'h5', t: 'H', m: 1, x: 25, y: -10, z: 35 },
+                
+                // Hidrogênios do C4
+                { id: 'h6', t: 'H', m: 1, x: 85, y: -5, z: -20 },
+                { id: 'h7', t: 'H', m: 1, x: 80, y: -35, z: 15 },
+                { id: 'h8', t: 'H', m: 1, x: 50, y: -40, z: -25 },
+                
+                // Hidrogênios do C5 (Radical Metil 1)
+                { id: 'h9', t: 'H', m: 1, x: -45, y: 60, z: 45 },
+                { id: 'h10', t: 'H', m: 1, x: 5, y: 60, z: 45 },
+                { id: 'h11', t: 'H', m: 1, x: -20, y: 80, z: 10 },
+                
+                // Hidrogênios do C6 (Radical Metil 2)
+                { id: 'h12', t: 'H', m: 1, x: 45, y: 60, z: -45 },
+                { id: 'h13', t: 'H', m: 1, x: -5, y: 60, z: -45 },
+                { id: 'h14', t: 'H', m: 1, x: 20, y: 80, z: -10 },
             ]).current;
 
             const bonds = useRef([
@@ -881,8 +894,9 @@
                 ['c6','h12'], ['c6','h13'], ['c6','h14']
             ]).current;
 
-            // Ângulo fixo de 0.8 radianos para uma vista 3D inclinada e clara.
-            const angle = 0.8; 
+            // Ângulo e inclinação (tilt) ajustados para garantir 100% de visibilidade de todos os 20 átomos
+            const angle = 0.55; 
+            const tilt = 0.2;
             const [scanned, setScanned] = useState([]);
 
             const toggleScan = (id) => {
@@ -894,10 +908,10 @@
             };
 
             const currentMass = scanned.reduce((sum, id) => sum + atoms3D.find(a => a.id === id).m, 0);
-            const targetMass = 86; // 6*12 + 14*1
+            const targetMass = 86; // 6*12 + 14*1 = 86
             const isComplete = currentMass === targetMass && scanned.length === atoms3D.length;
 
-            // Motor de Projeção 3D para 2D (Estático)
+            // Motor de Projeção 3D para 2D Estático
             const projectedAtoms = atoms3D.map(a => {
                 const cosY = Math.cos(angle);
                 const sinY = Math.sin(angle);
@@ -908,7 +922,6 @@
                 let y = a.y;
 
                 // Rotação X estática (Tilt para ver de cima)
-                const tilt = 0.3;
                 const cosX = Math.cos(tilt);
                 const sinX = Math.sin(tilt);
                 const finalY = y * cosX - z * sinX;
@@ -956,7 +969,7 @@
                                 {/* Átomos renderizados por profundidade (Painter's Algorithm) */}
                                 {[...projectedAtoms].sort((a,b) => b.pz - a.pz).map(a => {
                                     const isScanned = scanned.includes(a.id);
-                                    const radius = (a.t === 'C' ? 14 : 7) * a.scale;
+                                    const radius = (a.t === 'C' ? 14 : 8) * a.scale; // Hidrogênios um pouco maiores para facilitar o clique
                                     
                                     // Cores baseadas no tipo de átomo e status de scan
                                     let fill = a.t === 'C' ? "#27272a" : "#e4e4e7";
