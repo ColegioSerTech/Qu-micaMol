@@ -95,6 +95,18 @@
             return Math.abs(userVal - targetValue) / targetValue < 0.015;
         };
 
+        // Verifica notação científica contra múltiplos valores aceitáveis (com tolerância maior)
+        const checkSciNotationMulti = (mantissa, exponent, acceptedValues, tolerance = 0.05) => {
+            const mVal = parseFloat(mantissa.replace(',', '.'));
+            const eVal = parseInt(exponent);
+            if (isNaN(mVal) || isNaN(eVal)) return false;
+            const userVal = mVal * Math.pow(10, eVal);
+            if (!isFinite(userVal)) return false;
+            return acceptedValues.some(target => 
+                Math.abs(userVal - target) / target < tolerance
+            );
+        };
+
         const formatTime = (seconds) => {
             const m = Math.floor(seconds / 60).toString().padStart(2, '0');
             const s = (seconds % 60).toString().padStart(2, '0');
@@ -860,14 +872,14 @@
                 { id: 'c4', t: 'C', m: 12, x: 60, y: -20, z: 0 },
                 { id: 'c5', t: 'C', m: 12, x: -20, y: 50, z: 30 },
                 { id: 'c6', t: 'C', m: 12, x: 20, y: 50, z: -30 },
-                { id: 'h1', t: 'H', m: 1, x: -85, y: -10, z: 15 },
-                { id: 'h2', t: 'H', m: 1, x: -85, y: -10, z: -15 },
-                { id: 'h3', t: 'H', m: 1, x: -50, y: -45, z: 0 },
+                { id: 'h1', t: 'H', m: 1, x: -90, y: -35, z: 18 },
+                { id: 'h2', t: 'H', m: 1, x: -80, y: -45, z: -18 },
+                { id: 'h3', t: 'H', m: 1, x: -50, y: -55, z: 0 },
                 { id: 'h4', t: 'H', m: 1, x: -20, y: -15, z: -25 },
                 { id: 'h5', t: 'H', m: 1, x: 20, y: -15, z: 25 },
-                { id: 'h6', t: 'H', m: 1, x: 85, y: -10, z: 15 },
-                { id: 'h7', t: 'H', m: 1, x: 85, y: -10, z: -15 },
-                { id: 'h8', t: 'H', m: 1, x: 50, y: -45, z: 0 },
+                { id: 'h6', t: 'H', m: 1, x: 90, y: -35, z: 18 },
+                { id: 'h7', t: 'H', m: 1, x: 80, y: -45, z: -18 },
+                { id: 'h8', t: 'H', m: 1, x: 50, y: -55, z: 0 },
                 { id: 'h9', t: 'H', m: 1, x: -45, y: 65, z: 30 },
                 { id: 'h10', t: 'H', m: 1, x: 5, y: 65, z: 30 },
                 { id: 'h11', t: 'H', m: 1, x: -20, y: 40, z: 60 },
@@ -962,7 +974,7 @@
                                 {/* Átomos renderizados por profundidade (Painter's Algorithm) */}
                                 {[...projectedAtoms].sort((a,b) => b.pz - a.pz).map(a => {
                                     const isScanned = scanned.includes(a.id);
-                                    const radius = (a.t === 'C' ? 14 : 7) * a.scale;
+                                    const radius = (a.t === 'C' ? 14 : 9) * a.scale;
                                     
                                     // Cores baseadas no tipo de átomo e status de scan
                                     let fill = a.t === 'C' ? "#27272a" : "#e4e4e7";
@@ -1133,7 +1145,12 @@
             const [expoente, setExpoente] = useState('');
 
             const isAssembled = atoms.every(a => a.ok);
-            const isCorrect = checkSciNotation(mantissa, expoente, 4 * 6.022e23);
+            // Aceita tanto 6,02 × 10²³ (1 mol) quanto 2,41 × 10²⁴ (4 × Avogadro, oxigênios totais)
+            // e equivalências como 60,2 × 10²² ou 24,1 × 10²³
+            const isCorrect = checkSciNotationMulti(mantissa, expoente, [
+                6.022e23,        // 6,02 × 10²³
+                4 * 6.022e23,    // 2,41 × 10²⁴ (resposta estequiometricamente correta)
+            ], 0.05);
 
             const handleInput = () => {
                 if (!activeAtom) return;
@@ -1303,25 +1320,19 @@
         function EscapeRoomApp() {
             // Fases: 'boot', 'intro', 1 até 15, 'victory', 'gameover'
             const [phase, setPhase] = useState('boot'); 
-            const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 Minutos
+            const [timeLeft, setTimeLeft] = useState(0); // Tempo decorrido (crescente)
             const [penalties, setPenalties] = useState(0);
 
-            // Temporizador Global
+            // Temporizador Global - Conta tempo decorrido (crescente)
             useEffect(() => {
                 let timer;
-                if (typeof phase === 'number' && timeLeft > 0) {
+                if (typeof phase === 'number') {
                     timer = setInterval(() => {
-                        setTimeLeft(prev => {
-                            if (prev <= 1) {
-                                setPhase('gameover');
-                                return 0;
-                            }
-                            return prev - 1;
-                        });
+                        setTimeLeft(prev => prev + 1);
                     }, 1000);
                 }
                 return () => clearInterval(timer);
-            }, [phase, timeLeft]);
+            }, [phase]);
 
             const nextPhase = () => {
                 if (phase === 15) {
@@ -1331,9 +1342,43 @@
                 }
             };
 
+            // 🎮 CHEAT CODE: digite "COCACOLA" para desbloquear o botão de pular fases (modo teste)
+            const [cheatBuffer, setCheatBuffer] = useState('');
+            const [skipUnlocked, setSkipUnlocked] = useState(false);
+            
+            useEffect(() => {
+                const handleKey = (e) => {
+                    // Ignora se estiver digitando em algum input/textarea
+                    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+                    
+                    const key = e.key.toUpperCase();
+                    if (key.length === 1 && /[A-Z]/.test(key)) {
+                        setCheatBuffer(prev => {
+                            const newBuffer = (prev + key).slice(-8); // mantém últimos 8 caracteres
+                            if (newBuffer === 'COCACOLA') {
+                                setSkipUnlocked(true);
+                                // Feedback visual rápido
+                                const flash = document.createElement('div');
+                                flash.textContent = '🥤 MODO TESTE ATIVADO';
+                                flash.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#10b981;color:#000;padding:20px 40px;font-weight:900;font-size:24px;border-radius:12px;z-index:9999;box-shadow:0 0 50px rgba(16,185,129,0.8);animation:fadeOut 2s forwards';
+                                const style = document.createElement('style');
+                                style.textContent = '@keyframes fadeOut{0%{opacity:1;scale:1}80%{opacity:1;scale:1}100%{opacity:0;scale:0.8}}';
+                                document.head.appendChild(style);
+                                document.body.appendChild(flash);
+                                setTimeout(() => flash.remove(), 2000);
+                                return '';
+                            }
+                            return newBuffer;
+                        });
+                    }
+                };
+                window.addEventListener('keydown', handleKey);
+                return () => window.removeEventListener('keydown', handleKey);
+            }, []);
+
             const restart = () => {
                 setPhase('boot');
-                setTimeLeft(25 * 60);
+                setTimeLeft(0);
                 setPenalties(0);
             };
 
@@ -1372,9 +1417,20 @@
                                 <span className="font-black text-emerald-500 tracking-widest uppercase hidden md:inline">Avogadro Reator</span>
                                 <span className="text-neutral-500 font-mono text-sm border-l border-neutral-700 pl-3 ml-1 hidden sm:inline">Setor {phase}/15</span>
                             </div>
-                            <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-mono font-black text-xl border transition-colors ${timeLeft < 300 ? 'bg-red-950/50 border-red-500 text-red-500 animate-pulse' : 'bg-neutral-900 border-neutral-700 text-emerald-400'}`}>
-                                <Icons.Clock />
-                                {formatTime(timeLeft)}
+                            <div className="flex items-center gap-3">
+                                {skipUnlocked && (
+                                    <button 
+                                        onClick={nextPhase}
+                                        title="Modo Teste: Pular Fase"
+                                        className="flex items-center gap-2 px-4 py-2 rounded-full font-mono font-black text-sm border bg-fuchsia-950/50 border-fuchsia-500 text-fuchsia-300 hover:bg-fuchsia-900 transition-colors uppercase tracking-widest shadow-[0_0_15px_rgba(217,70,239,0.4)]"
+                                    >
+                                        🥤 Pular ▶
+                                    </button>
+                                )}
+                                <div className="flex items-center gap-2 px-4 py-2 rounded-full font-mono font-black text-xl border bg-neutral-900 border-neutral-700 text-emerald-400">
+                                    <Icons.Clock />
+                                    {formatTime(timeLeft)}
+                                </div>
                             </div>
                         </header>
                     )}
